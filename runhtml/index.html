@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="UTF-8">
+  <title>HTML/CSS/Javascript在线代码运行工具</title>
+
+  <!-- inject:css -->
+  <link rel="stylesheet" type="text/css" href="./js/stdtheme.css">
+  <!-- endinject -->
+
+
+  <style type="text/css">
+  .adsbygoogle {
+    display: none !important;
+    display: none
+  }
+  textarea {
+    width: 100%;
+    border: 0 none;
+    overflow: auto;
+    resize: none;
+    outline: none;
+  }
+  a {
+    color: #333;
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    word-wrap: break-word;
+    font-family: verdana, Microsoft YaHei, Tahoma, sans-serif;
+  }
+  .content .textbox {
+    right: 0;
+    left: 0;
+    padding-left: 5px;
+    border: 1px #d1d1d1 solid;
+    overflow: hidden;
+    position: absolute;
+  }
+  .content .textbox div textarea {
+    padding: 5px 0;
+    width: 100%;
+  }
+  .content .btnbar {
+    top: 10px;
+    right: 124px;
+    position: absolute;
+  }
+  .btns {
+    display: block;
+    margin-right: 8px;
+    width: 80px;
+    height: 38px;
+    line-height: 38px;
+    font-size: 14px;
+    text-align: center;
+    border: 1px #cacaca solid;
+    border-radius: 2px;
+    float: left;
+    font-family: verdana, Microsoft YaHei, Tahoma, sans-serif;
+  }
+  .btns:hover {
+    border: 1px #a4a4a4 solid;
+    background-position: 0 -40px;
+    text-decoration: none;
+  }
+  .btns:active {
+    background-position: 0 -80px;
+  }
+  .btns.hilite {
+    color: #f15214;
+    border: 1px #ffc88b solid;
+    background-position: 0 -120px;
+  }
+  .btns.hilite:hover {
+    border: 1px #f60 solid;
+    background-position: 0 -160px;
+  }
+  .btns.hilite:active {
+    background-position: 0 -200px;
+  }
+  .content #code {
+    left: 130px;
+    right: 130px;
+    height: 440px;
+  }
+  .content #code textarea {
+    height: 430px;
+  }
+  </style>
+</head>
+
+<body>
+  <div id="page">
+    <div style="height:600px;">
+      <br>
+      <h1>&nbsp; &nbsp;HTML/CSS/Javascript在线代码运行工具</h1>
+      <hr>
+      <div class="content">
+        <div id="code" class="textbox">
+          <div>
+            <textarea id="codeinp">将HTML代码粘在此处，点击运行即可。</textarea>
+          </div>
+        </div>
+        <div class="btnbar cl">
+          <a id="btclear" class="btns" href="javascript:void(0); " hidefocus="true">清空</a>
+          <a id="btrun" class="btns hilite" href="javascript:void(0);" hidefocus="true">运行</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- inject:js -->
+  <script src="./js/jquery.min.js"></script>
+  <script src="./js/logger.js"></script>
+  <!-- endinject -->
+  <script>
+  (function() {
+    window.onload = function() {
+      var e = "将HTML代码粘在此处，点击运行即可。",
+        t = document.getElementById("codeinp"),
+        n = document.getElementById("btclear"),
+        r = document.getElementById("btrun");
+      t.onfocus = function() {
+        var n = t.value;
+        n == e && (t.value = "")
+      }, t.onblur = function() {
+        var n = t.value;
+        n == "" && (t.value = e)
+      }, n.onclick = function() {
+        t.value = "", t.focus()
+      }, r.onclick = function() {
+        var n = t.value;
+        if (n != e) {
+          var r = window.open("", "", "");
+          r.opener = null, r.document.write(n), r.document.close()
+        } else {
+          alert("请将需要运行的HTML填写到输入框后再运行！", "alert", "运行提示");
+        }
+      }
+    }
+  })()
+  </script>
+  <script>
+  function NewWindow(text) {
+    win = window.open(text, '', 'top=0,left=0,width=400,height=350');
+  }
+  $(function() {
+    color_flag = false;
+    //配色标记
+    prev_title_flag = false;
+    next_title_flag = false;
+    href = window.location.href;
+    console.log('href', href);
+    $("#leftcolumn").find("a").each(function() {
+      if (next_title_flag) {
+        return false;
+        //结束循环
+      }
+      cur_href = $(this).attr("href");
+      cur_obj = $(this);
+      if (href.match(cur_href) != null) {
+        if (cur_href.indexOf('/') == -1) {
+          //第二重判断
+          tmp_url = href.substring(0, href.lastIndexOf('/') + 1) + cur_href;
+          console.log('tmp_url', tmp_url);
+          if (href != tmp_url) return;
+        }
+        if (!color_flag) {
+          $(this).css("font-weight", "bold");
+          color_flag = true;
+        }
+        prev_href = $(this).prev("a").attr("href");
+        prev_title = $(this).prev("a").attr("title");
+        if (!prev_title) prev_title = $(this).prev("a").text();
+        next_href = $(this).next("a").attr("href");
+        next_title = $(this).next("a").attr("title");
+        if (!next_title) next_title = $(this).next("a").text();
+        if (!prev_title_flag) {
+          if (prev_title) {
+            $(".prev a").attr("href", prev_href);
+            $(".prev a").attr("title", prev_title);
+            $(".prev a").text(prev_title);
+          } else {
+            if (typeof(prev_obj) != 'undefined') {
+              prev_href = prev_obj.attr("href");
+              prev_title = prev_obj.attr("title");
+              if (!prev_title) prev_title = prev_obj.text();
+              if (prev_title) {
+                $(".prev a").attr("href", prev_href);
+                $(".prev a").attr("title", prev_title);
+                $(".prev a").text(prev_title);
+              }
+            }
+          }
+          prev_title_flag = true;
+        }
+        if (next_title) {
+          if ($(".next a").attr("href")) {
+            $(".next a").attr("href", next_href);
+            $(".next a").attr("title", next_title);
+            $(".next a").text(next_title);
+          } else {
+            $(".next").html("<a href=\"" + next_href + "\" rel=\"next\" title=\"" + next_title + "\">" + next_title + "</a> &raquo;");
+          }
+          next_title_flag = true;
+        }
+        console.log(prev_href, prev_title);
+        console.log(next_href, next_title);
+        //return false;}else {
+        prev_obj = cur_obj;
+        if (next_title_flag) {
+          return false;
+        } else {
+          if (prev_title_flag) {
+            next_href = $(this).attr("href");
+            next_title = $(this).attr("title");
+            if (!next_title) next_title = $(this).text();
+            if (next_title) {
+              if ($(".next a").attr("href")) {
+                $(".next a").attr("href", next_href);
+                $(".next a").attr("title", next_title);
+                $(".next a").text(next_title);
+              } else {
+                $(".next").html("<a href=\"" + next_href + "\" rel=\"next\" title=\"" + next_title + "\">" + next_title + "</a> &raquo;");
+              }
+              next_title_flag = true;
+            }
+          }
+        }
+      }
+    });
+    $(window).scroll(function() {
+      if ($(window).scrollTop() >= 100) {
+        $(".backtop").fadeIn();
+      } else {
+        $(".backtop").fadeOut();
+      }
+    });
+    $(".backtop").click(function(event) {
+      $('html,body').animate({
+        scrollTop: 0
+      }, 500);
+      return false;
+    });
+  });
+  </script>
+  <script id="hiddenlpsubmitdiv" style="display:none;"></script>
+</body>
+
+</html>

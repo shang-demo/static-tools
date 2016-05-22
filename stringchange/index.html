@@ -1,0 +1,248 @@
+<!Doctype html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <style type="text/css" media="screen">
+  button {
+    height: 50px;
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    border-radius: 4px;
+  }
+  .smallbtn {
+    width: 80px;
+  }
+  button:hover {
+    background-color: #e7e4e4;
+  }
+  input {
+    height: 48px;
+    width: 200px;
+    font-size: 26px;
+    color: black;
+    border-radius: 3px;
+    border: none;
+    background-color: #CCCCCC;
+    padding-left: 6px;
+    outline: none;
+    vertical-align: bottom;
+  }
+  input[type="checkbox"] {
+    width: 20px;
+    vertical-align: middle;
+    display: inline-block;
+    background-color: white;
+  }
+  .otherfun {
+    margin: 5px auto;
+  }
+  #inputarea {
+    width: 800px;
+    height: 100px;
+    font-size: 25px;
+    margin-bottom: 10px;
+  }
+  #outputarea {
+    width: 800px;
+    height: 220px;
+    font-size: 18px;
+  }
+  </style>
+</head>
+
+<body>
+  <center>
+    <h1>字符串转换</h1>
+    <textarea id="inputarea" class="autoselect" autofocus="autofocus" placeholder="待转换的字符串...."></textarea>
+    <br>
+    <span>正则表达式:</span>
+    <input type="text" id="from" class="autoselect">
+    <span>替换为:</span>
+    <input type="text" id="to" class="autoselect">
+    <button type="button" class="smallbtn" onclick="RegReplace()">替换</button>
+    <br>
+    <div class="otherfun">
+      <button type="button" onclick="ChangePath('/')">转换为 / 路径</button>
+      <button type="button" onclick="ChangePath('\\\\')">转换为 \\ 路径</button>
+      <button type="button" onclick="ReplaceOneLine()">折叠为一行</button>
+      <button type="button" onclick="ReplaceLineNu()">去代码行号</button>
+      <button type="button" class="smallbtn" onclick="getLen()">长度</button>
+      <button type="button" class="smallbtn" onclick="EmptyAll()">清空</button>
+      <input type="checkbox" id="isneed" onChange="MarkChange()">路径转换去引号
+    </div>
+    <div class="otherfun">
+      <button type="button" id="btn1">HTML转义(escape)</button>
+      <button type="button" id="btn2">HTML反转义(unescape)</button>
+      <button type="button" id="singlemark">带单引号字符串</button>
+      <button type="button" id="doublemark">带双引号字符串</button>
+      <input type="checkbox" id="arrayssel" checked>引号是否数组拼接
+    </div>
+    <textarea id="outputarea" class="autoselect" placeholder="转换后的字符串...."></textarea>
+  </center>
+
+  <!-- inject:js -->
+  <script src="underscore-min.js"></script>
+  <!-- endinject -->
+
+  <script>
+  window.onload = function() {
+    //记录/显示 路径转换是否去引号
+    if (localStorage.quotation_mark === null || localStorage.quotation_mark === '1') {
+      $("isneed").checked = true;
+    } else {
+      localStorage.quotation_mark = 0;
+      $("isneed").checked = false;
+    }
+
+    //  聚焦 全选
+    var autoselect = document.getElementsByClassName("autoselect");
+    for (var i = 0; i < autoselect.length; i++) {
+      autoselect[i].onfocus = focusselect;
+    }
+
+    $('singlemark').onclick = function() {
+      changeMarks(document.getElementById('arrayssel').checked, '\'');
+    };
+    $('doublemark').onclick = function() {
+      changeMarks(document.getElementById('arrayssel').checked, '"');
+    };
+    $('btn1').onclick = function() {
+      $("outputarea").value = _.escape($("inputarea").value);
+      SelectTextById("outputarea");
+
+    };
+    $('btn2').onclick = function() {
+      $("outputarea").value = _.unescape($("inputarea").value);
+      SelectTextById("outputarea");
+    };
+  };
+
+  function focusselect() {
+    var _this = this;
+    setTimeout(
+      function() {
+        _this.select();
+      },
+      30
+    );
+  }
+
+  var getStrOrRegExp = function(str) {
+    if (typeof str === 'function') {
+      return str.apply(str, [].splice.call(arguments, 1));
+    }
+
+    if (typeof str !== 'string') {
+      throw new TypeError('Expected a string');
+    }
+
+    if (/^\/(.*)\/([gi]*)$/.test(str)) {
+      var reg = new RegExp(RegExp.$1, RegExp.$2);
+      return reg;
+    }
+    return str;
+  };
+
+
+  //正则全局替换
+  String.prototype.replaceAll = function(reallyDo, replaceWith, ignoreCase) {
+    return this.replace(getStrOrRegExp(reallyDo), getStrOrRegExp(replaceWith));
+  };
+
+  function ReplaceOneLine() {
+    $("outputarea").value = $("inputarea").value.replace(/[\n\r]/g, "");
+    SelectTextById('outputarea');
+  }
+
+  function MarkChange() {
+    localStorage.quotation_mark = Math.abs(localStorage.quotation_mark - 1);
+  }
+
+  function $(id) {
+    return document.getElementById(id);
+  }
+
+  function RegReplace() {
+    var change = $("from").value;
+    var changeto = $("to").value;
+    $("outputarea").value = $("inputarea").value.replaceAll(change, changeto, 1);
+    SelectTextById("outputarea");
+  }
+
+  function ChangePath(resultstr) {
+    var temp = $("inputarea").value.replace(/[\\]/g, resultstr);
+
+    if ($("isneed").checked) {
+      temp = temp.replace(/[\"]/g, "");
+    }
+
+    $("outputarea").value = temp;
+    SelectTextById("outputarea");
+  }
+
+  function ReplaceLineNu() {
+    $("outputarea").value = $("inputarea").value.replace(/^\s*\d+/gm, "");
+    SelectTextById('outputarea');
+  }
+
+  function getLen() {
+    $("outputarea").value = $("inputarea").value.length;
+    SelectTextById("outputarea");
+  }
+
+  function EmptyAll() {
+    $("inputarea").value = "";
+    $("outputarea").value = "";
+    SelectTextById("inputarea");
+  }
+
+  var timer = null;
+
+  function SelectTextById(id) {
+    clearTimeout(timer);
+    timer = setTimeout(function() {
+      document.getElementById(id).select();
+    }, 30);
+  }
+
+  function changeMarks(isArraySel, marks) {
+    var htmlArr = '';
+    if (marks != '\'') {
+      htmlArr = $('inputarea').value.replace(/\\/g, "\\\\").replace(/\\/g, "\\/").replace(/\'/g, "\\\'").replace(/\"/g, "\\\"").split('\n');
+    } else {
+      htmlArr = $('inputarea').value.replace(/\\/g, "\\\\").replace(/\\/g, "\\/").replace(/\'/g, "\\\'").split('\n');
+    }
+    var len = htmlArr.length;
+    var outArr = [];
+    if (isArraySel) {
+      outArr.push("[");
+    }
+    for (var i = 0; i < htmlArr.length; i++) {
+      if (htmlArr[i] !== '') {
+        if (i === len - 1) {
+          outArr.push(marks + htmlArr[i] + marks + (isArraySel ? '' : ';'));
+        } else {
+          outArr.push(marks + htmlArr[i] + marks + (isArraySel ? ', ' : '+') + '\n');
+        }
+      }
+    }
+    if (isArraySel) {
+      outArr.push('].join(\'\');');
+    }
+    $('outputarea').value = outArr.join('');
+
+    SelectTextById("outputarea");
+  }
+  </script>
+</body>
+
+</html>

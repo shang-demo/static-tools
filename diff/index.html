@@ -1,0 +1,246 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Mergely - Diff online, merge documents</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="description" content="Merge and Diff your documents with diff online and share" />
+    <meta name="keywords" content="diff,merge,compare,jsdiff,comparison,difference,file,text,unix,patch,algorithm,saas,longest common subsequence,diff online" />
+    <link rel="shortcut icon" href="img/favicon.ico" />
+
+    <!-- inject:css -->
+    <link type="text/css" rel="stylesheet" href="css/jquery-ui-1.10.1.custom.css" />
+    <link type='text/css' rel='stylesheet' href='css/wicked-ui.css' />
+    <link type="text/css" rel="stylesheet" href="css/codemirror.css" />
+    <link type="text/css" rel="stylesheet" href="css/mergely.css" />
+    <link type='text/css' rel='stylesheet' href='css/editor.css' />
+    <link type="text/css" rel="stylesheet" href="css/farbtastic.css" />
+    <link type='text/css' rel='stylesheet' href='css/tipsy.css' />
+    <!-- endinject -->
+
+</head>
+
+<body style="visibility:hidden">
+    <div id="banner"></div>
+    <!-- menu -->
+    <ul id="main-menu">
+        <li accesskey="f">
+            File
+            <ul>
+                <li id="file-save" accesskey="s" data-hotkey="Alt+S" data-icon="icon-save">Save .diff</li>
+            </ul>
+        </li>
+        <li accesskey="l">
+            Left
+            <ul>
+                <li id="edit-left-undo" accesskey="z" data-hotkey="Ctrl+Z" data-icon="icon-undo">Undo</li>
+                <li id="edit-left-redo" accesskey="y" data-hotkey="Ctrl+Y" data-icon="icon-redo">Redo</li>
+                <li id="edit-left-find">Find</li>
+                <li class="separator"></li>
+                <li id="edit-left-merge-right" data-hotkey="Alt+&rarr;" data-icon="icon-arrow-right-v">Merge change right</li>
+                <li id="edit-left-merge-right-file" data-icon="icon-arrow-right-vv">Merge file right</li>
+                <li id="edit-left-readonly">Read only</li>
+                <li class="separator"></li>
+                <li id="edit-left-clear">Clear</li>
+            </ul>
+        </li>
+        <li accesskey="r">
+            Right
+            <ul>
+                <li id="edit-right-undo" accesskey="z" data-hotkey="Ctrl+Z" data-icon="icon-undo">Undo</li>
+                <li id="edit-right-redo" accesskey="y" data-hotkey="Ctrl+Y" data-icon="icon-redo">Redo</li>
+                <li id="edit-right-find">Find</li>
+                <li class="separator"></li>
+                <li id="edit-right-merge-left" data-hotkey="Alt+&larr;" data-icon="icon-arrow-left-v">Merge change left</li>
+                <li id="edit-right-merge-left-file" data-icon="icon-arrow-left-vv">Merge file left</li>
+                <li id="edit-right-readonly">Read only</li>
+                <li class="separator"></li>
+                <li id="edit-right-clear">Clear</li>
+            </ul>
+        </li>
+        <li accesskey="v">
+            View
+            <ul>
+                <li id="view-swap" data-icon="icon-swap">Swap sides</li>
+                <li class="separator"></li>
+                <li id="view-refresh" accesskey="v" data-hotkey="Alt+V" title="Generates diff markup">Render diff view</li>
+                <li id="view-clear" accesskey="c" data-hotkey="Alt+C" title="Clears diff markup">Clear render</li>
+                <li class="separator"></li>
+                <li id="view-change-prev" data-hotkey="Alt+&uarr;" title="View previous change">View prev change</li>
+                <li id="view-change-next" data-hotkey="Alt+&darr;" title="View next change">View next change</li>
+            </ul>
+        </li>
+        <li accesskey="o">
+            Options
+            <ul>
+                <li id="options-wrap">Wrap lines</li>
+                <li id="options-ignorews">Ignore white space</li>
+                <li class="separator"></li>
+                <li id="options-viewport" title="Improves performance for large files">Enable viewport</li>
+                <li id="options-sidebars" title="Improves performance for large files">Enable side bars</li>
+                <li id="options-swapmargin">Swap right margin</li>
+                <li id="options-linenumbers">Enable line numbers</li>
+                <li class="separator"></li>
+                <li id="options-autodiff" title="Diffs are computed automatically">Enable auto-diff</li>
+                <li class="separator"></li>
+                <li id="options-colors">Colors...</li>
+            </ul>
+        </li>
+        <li accesskey="m" style="display:none">
+            Mergely
+            <ul>
+                <li><a class="link" href="/" target="site">Home</a>
+                </li>
+                <li><a class="link" href="/about" target="site">About</a>
+                </li>
+                <li><a class="link" href="/license" target="site">License</a>
+                </li>
+                <li><a class="link" href="/download" target="site">Download</a>
+                </li>
+                <li><a class="link" href="/doc" target="site">Mergely development guide</a>
+                </li>
+                <li class="separator"></li>
+                <li><a class="link" href="/united-states-declaration-of-independence?wl=1" target="_blank">United States Declaration of Independence Draft</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+    <!-- toolbar -->
+    <ul id="toolbar">
+        <li id="tb-file-share" data-icon="icon-share" title="Share">Share</li>
+        <li class="separator"></li>
+        <li id="tb-file-import" data-icon="icon-import" title="Import">Import</li>
+        <li id="tb-file-save" data-icon="icon-save" title="Save .diff">Save .diff</li>
+        <li class="separator"></li>
+        <li id="tb-view-change-prev" data-icon="icon-arrow-up" title="Previous change">Previous change</li>
+        <li id="tb-view-change-next" data-icon="icon-arrow-down" title="Next change">Next change</li>
+        <li class="separator"></li>
+        <li id="tb-edit-right-merge-left" data-icon="icon-arrow-left-v" title="Merge change left">Merge change left</li>
+        <li id="tb-edit-left-merge-right" data-icon="icon-arrow-right-v" title="Merge change right">Merge change right</li>
+        <li id="tb-view-swap" data-icon="icon-swap" title="Swap sides">Swap sides</li>
+    </ul>
+
+    <!-- dialog upload -->
+    <div id="dialog-upload" title="File import" style="display:none">
+        <div class="tabs">
+            <ul>
+                <li><a href="#tabs-1">Import File</a>
+                </li>
+                <li><a href="#tabs-2">Import URL</a>
+                </li>
+            </ul>
+            <div id="tabs-1">
+                <p>
+                    Files are imported directly into your browser. They are <em>not</em> uploaded to the server.
+                </p>
+                <label for="file-lhs">Left file</label>
+                <input id="file-lhs" style="display:inline-block" type="file">
+                <div id="file-lhs-progress">
+                    <div class="progress-label">Loading...</div>
+                </div>
+                <br />
+                <label for="file-rhs">Right file</label>
+                <input id="file-rhs" style="display:inline-block" type="file">
+                <div id="file-rhs-progress">
+                    <div class="progress-label">Loading...</div>
+                </div>
+                <br />
+            </div>
+            <div id="tabs-2">
+                <p>
+                    Files are imported directly into your browser. They are <em>not</em> uploaded to the server.
+                </p>
+                <label for="url-lhs">Left URL</label>
+                <input id="url-lhs" type="input" size="40">
+                <div id="file-lhs-progress">
+                    <div class="progress-label">Loading...</div>
+                </div>
+                <br />
+                <label for="url-rhs">Right URL</label>
+                <input id="url-rhs" type="input" size="40">
+                <div id="file-rhs-progress">
+                    <div class="progress-label">Loading...</div>
+                </div>
+                <br />
+            </div>
+        </div>
+    </div>
+
+    <!-- dialog colors -->
+    <div id="dialog-colors" title="Mergely Color Settings" style="display:none">
+        <div id="picker" style="float: right;"></div>
+        <fieldset>
+            <legend>Changed</legend>
+            <label for="c-border">Border:</label>
+            <input type="text" id="c-border" name="c-border" class="colorwell" />
+            <br />
+            <label for="c-bg">Background:</label>
+            <input type="text" id="c-bg" name="c-bg" class="colorwell" />
+            <br />
+        </fieldset>
+        <fieldset>
+            <legend>Added</legend>
+            <label for="a-border">Border:</label>
+            <input type="text" id="a-border" name="a-border" class="colorwell" />
+            <br />
+            <label for="a-bg">Background:</label>
+            <input type="text" id="a-bg" name="a-bg" class="colorwell" />
+            <br />
+        </fieldset>
+        <fieldset>
+            <legend>Deleted</legend>
+            <label for="d-border">Border:</label>
+            <input type="text" id="d-border" name="d-border" class="colorwell" />
+            <br />
+            <label for="d-bg">Background:</label>
+            <input type="text" id="d-bg" name="d-bg" class="colorwell" />
+            <br />
+        </fieldset>
+    </div>
+
+    <!-- dialog confirm -->
+    <div id="dialog-confirm" title="Save a Permanent Copy?" style="display:none;">
+        <p>
+            Are you sure you want to save? A permanent copy will be created at the server and a link will be provided for you to share the URL in an email, blog, twitter, etc.
+        </p>
+    </div>
+
+    <!-- find -->
+    <div class="find">
+        <input type="text" />
+        <button class="find-prev"><span class="icon icon-arrow-up"></span>
+        </button>
+        <button class="find-next"><span class="icon icon-arrow-down"></span>
+        </button>
+        <button class="find-close"><span class="icon icon-x-mark"></span>
+        </button>
+    </div>
+
+    <!-- editor -->
+    <div style="position: absolute;top: 73px;bottom: 10px;left: 5px;right: 5px;overflow-y: hidden;padding-bottom: 2px;">
+        <div id="mergely">
+        </div>
+    </div>
+
+    <!-- inject:js -->
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/wicked-ui.js"></script>
+    <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+    <script type="text/javascript" src="js/farbtastic.js"></script>
+    <script type="text/javascript" src="js/codemirror.min.js"></script>
+    <script type="text/javascript" src="js/mergely.min.js"></script>
+    <script type="text/javascript" src="js/editor.min.js"></script>
+    <script type="text/javascript" src="js/searchcursor.js"></script>
+    <!-- endinject -->
+    
+    <script type="text/javascript">
+    var key = '';
+    var isSample = key == 'usaindep';
+    </script>
+    <!-- // <script type="text/javascript" src="js/plusone.js"></script> -->
+</body>
+
+</html>

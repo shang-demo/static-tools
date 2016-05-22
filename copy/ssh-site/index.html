@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <style type="text/css" media="screen">
+  button {
+    height: 50px;
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    border-radius: 4px;
+  }
+  .smallbtn {
+    width: 80px;
+  }
+  button:hover {
+    background-color: #e7e4e4;
+  }
+  input {
+    height: 48px;
+    width: 200px;
+    font-size: 26px;
+    color: black;
+    border-radius: 3px;
+    border: none;
+    background-color: #CCCCCC;
+    padding-left: 6px;
+    outline: none;
+    vertical-align: bottom;
+  }
+  input[type="checkbox"] {
+    width: 20px;
+    vertical-align: middle;
+    display: inline-block;
+    background-color: white;
+  }
+  textarea {
+    width: 800px;
+    font-size: 25px;
+    margin-bottom: 10px;
+  }
+  </style>
+</head>
+
+<body>
+  <div style="margin-bottom:10px">
+    git.ssh:
+    <input type="text" id="ssh" style="width:800px">
+  </div>
+  rsa_name:
+  <input type="text" id="rsaName"> email
+  <input type="text" id="email">
+
+  <button onclick="generate()">生成</button>
+  <div>
+    生成id_rsa
+    <button class="copy" data-clipboard-target="cmd">复制</button>
+  </div>
+  <textarea id="cmd" cols="100" rows="1"></textarea>
+  <div>
+    ~/.ssh/config
+    <button class="copy" data-clipboard-target="sshConfig">复制</button>
+  </div>
+  <textarea id="sshConfig" cols="100" rows="5"></textarea>
+  <div>.git/config
+    <button class="copy" data-clipboard-target="gitConfig">复制</button>
+  </div>
+  <textarea id="gitConfig" cols="100" rows="2"></textarea>
+  <div>测试连接
+    <button class="copy" data-clipboard-target="test">复制</button>
+  </div>
+  <textarea id="test" cols="100" rows="1"></textarea>
+  <!-- <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script> -->
+
+  <script type="text/javascript" src="ZeroClipboard.min.js"></script>
+  <script type="text/javascript">
+  // 定义一个新的复制对象
+  var clip = new ZeroClipboard(document.getElementsByClassName("copy"));
+
+  // 复制内容到剪贴板成功后的操作
+  clip.on('complete', function(client, args) {
+    alert("复制成功，复制内容为：" + args.text);
+  });
+  </script>
+  <script type="text/javascript">
+  var oSSH = document.getElementById('ssh');
+  var oRsaName = document.getElementById('rsaName');
+  var oEmail = document.getElementById('email');
+
+
+  var oCmd = document.getElementById('cmd');
+  var oSshConfig = document.getElementById('sshConfig');
+  var oGitConfig = document.getElementById('gitConfig');
+  var oTest = document.getElementById('test');
+
+  var cmdTemplate = 'ssh-keygen -t rsa -C "[email]" -f ~/.ssh/[rsa_name]';
+  var sshConfigTemplate = 'Host [rsa_name].[suffixName]\n' +
+    '  HostName [hostName]\n' +
+    '  PreferredAuthentications publickey\n' +
+    '  IdentityFile ~/.ssh/[rsa_name]\n';
+
+  var gitConfigTemplate = 'git remote add origin git@[rsa_name].[suffixName]:[gitPath]';
+
+  var testTemplate = 'ssh -T git@[rsa_name].[suffixName]';
+
+  function generate() {
+    var ssh = oSSH.value;
+    var rsaName = oRsaName.value;
+    if (!rsaName) {
+      rsaName = '[rsa_name]';
+    }
+
+    var email = oEmail.value || rsaName;
+
+
+    var hostName = ssh.replace(/^git@|\:.*$/g, '');
+    var suffixName = hostName.replace(/^git\./, '');
+    var gitPath = ssh.replace(/^git@.*?\:/, '');
+
+    oCmd.value = cmdTemplate.replace(/\[rsa_name\]/g, rsaName).replace('[email]', email);
+    oSshConfig.value = sshConfigTemplate.replace(/\[rsa_name\]/g, rsaName).replace(/\[suffixName\]/g, suffixName).replace(/\[hostName\]/g, hostName);
+    oGitConfig.value = gitConfigTemplate.replace(/\[rsa_name\]/g, rsaName).replace(/\[suffixName\]/g, suffixName).replace(/\[gitPath\]/g, gitPath);
+    oTest.value = testTemplate.replace(/\[rsa_name\]/g, rsaName).replace(/\[suffixName\]/g, suffixName);
+  }
+  </script>
+</body>
+
+</html>
