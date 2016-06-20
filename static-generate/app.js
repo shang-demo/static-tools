@@ -23,14 +23,24 @@ if (targetPath) {
         targetPath = path.resolve(__dirname, '../copy/' + project.name);
         return copy(targetPath).reflect();
       }
-      else if(project.copy && project.copy.length) {
-        return P.map(project.copy, function (item) {
-          var copyFile = path.resolve(__dirname, '../' + project.name + '/' + item);
-          return copy(copyFile, path.resolve(__dirname, '../deploy/' + project.name + '/' + item));
-        }).reflect();
-      }
-      targetPath = path.resolve(__dirname, '../' + project.name);
-      return build(targetPath, index).reflect();
+
+      return P
+        .resolve()
+        .then(function() {
+          targetPath = path.resolve(__dirname, '../' + project.name);
+          return build(targetPath, index);
+        })
+        .then(function(data) {
+          if (project.copy && project.copy.length) {
+            return P.map(project.copy, function(item) {
+              var copyFile = path.resolve(__dirname, '../' + project.name + '/' + item);
+              console.log('copyFile: ', copyFile);
+              return copy(copyFile, path.resolve(__dirname, '../deploy/' + project.name + '/' + item));
+            });
+          }
+          return data;
+        })
+        .reflect();
     })
     .each(function(inspection, i) {
       if (inspection.isFulfilled()) {
@@ -41,8 +51,7 @@ if (targetPath) {
       }
       indexHtml();
     })
-    .catch(function (e) {
-    })
+    .catch(function(e) {})
 }
 
 function copy(targetPath, targetStaticPath) {
@@ -71,6 +80,7 @@ function copy(targetPath, targetStaticPath) {
 }
 
 function build(targetPath, index) {
+  index = index === undefined ? '' : index;
   var targetPublicPath = path.resolve(__dirname, targetPath);
   var targetStaticPath;
 
@@ -122,7 +132,7 @@ function execCmd(cmd, arg, options) {
         stdio: 'inherit'
       })
       .on('error', function(err) {
-        console.log(JSON.stringify(err, null , 2));
+        console.log(JSON.stringify(err, null, 2));
       })
       .on('exit', function(code) {
         if (code !== 0) {
