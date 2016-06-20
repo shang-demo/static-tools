@@ -16,6 +16,9 @@ module.exports = {
   }, {
     name: 'detection'
   }, {
+    name: 'port-scan',
+    copy: ['js/js.portscan.js']
+  }, {
     name: 'RGB'
   }, {
     name: 'html5table',

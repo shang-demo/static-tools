@@ -19,9 +19,15 @@ if (targetPath) {
   P.map(config.projects, function(project, index) {
       console.log('index: ', index);
       console.log(project.name);
-      targetPath = path.resolve(__dirname, '../copy/' + project.name);
-      if (project.copy) {
+      if (project.copy === true) {
+        targetPath = path.resolve(__dirname, '../copy/' + project.name);
         return copy(targetPath).reflect();
+      }
+      else if(project.copy && project.copy.length) {
+        return P.map(project.copy, function (item) {
+          var copyFile = path.resolve(__dirname, '../' + project.name + '/' + item);
+          return copy(copyFile, path.resolve(__dirname, '../deploy/' + project.name + '/' + item));
+        }).reflect();
       }
       targetPath = path.resolve(__dirname, '../' + project.name);
       return build(targetPath, index).reflect();
@@ -30,24 +36,26 @@ if (targetPath) {
       if (inspection.isFulfilled()) {
         console.log('success: ', config.projects[i]);
       } else {
-        console.error('error: ', config.projects[i], inspection.reason());
+        console.error('error projects: ', config.projects[i]);
+        console.error(JSON.stringify(inspection.reason(), null, 2))
       }
       indexHtml();
-    });
+    })
+    .catch(function (e) {
+    })
 }
 
-function copy(targetPath) {
+function copy(targetPath, targetStaticPath) {
   var targetPublicPath = path.resolve(__dirname, targetPath);
-  var targetStaticPath;
 
   return fs.statAsync(targetPublicPath)
     .then(function() {
-      targetStaticPath = path.resolve(__dirname, '../deploy/' + targetPublicPath.replace(/.*[\\\/]/, ''));
+      targetStaticPath = targetStaticPath || path.resolve(__dirname, '../deploy/' + targetPublicPath.replace(/.*[\\\/]/, ''));
     })
     .then(function() {
       return execCmd('cp', ['-r', targetPublicPath, targetStaticPath])
         .catch(function(e) {
-          console.log(e);
+          console.log(JSON.stringify(e, null, 2));
         })
         .finally(function() {
           // var gitPath = path.resolve(__dirname, '../deploy/' + targetPublicPath.replace(/.*[\\\/]/, '') + '/.git');
@@ -114,7 +122,7 @@ function execCmd(cmd, arg, options) {
         stdio: 'inherit'
       })
       .on('error', function(err) {
-        console.log(err);
+        console.log(JSON.stringify(err, null , 2));
       })
       .on('exit', function(code) {
         if (code !== 0) {
