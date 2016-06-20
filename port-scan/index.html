@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head lang="zh-cn">
+  <meta charset="utf-8">
+  <meta http-equiv="cache-control" content="max-age=3600">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="renderer" content="webkit">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="keywords" content="js port scan 端口 探测">
+  <meta name="description" content="js端口探测 - vc1">
+  <title>js端口探测 - vc1</title>
+
+  <!-- inject:css -->
+  <link href="css/semantic.css" rel="stylesheet">
+  <link href="css/normalize.css" rel="stylesheet">
+  <link href="css/index.css" rel="stylesheet">
+  <!-- endinject -->
+</head>
+
+<body id="app" v-cloak>
+  <div class="ui one item menu navbar top visible push sidebar">
+    <div class="ui teal header item">
+      <i class="find outline icon"></i>
+      <a text-align="right" href="https://segmentfault.com/a/1190000005746121" target="_blank">js端口探测</a>
+    </div>
+  </div>
+
+  <div class="ui middle aligned center aligned padded grid">
+    <div id="main" class="column">
+      <div class="ui container">
+        <div class="ui piled segment">
+
+          <form class="ui form" @submit.prevent="scan">
+            <div class="ui middle aligned center aligned padded grid">
+              <div class="row">
+                <div class="three wide column">
+                  <div v-bind:class="{'disabled':running}" class="field">
+                    <label>主机</label>
+                    <input type="text" v-model="host" value="{{host}}" placeholder="sec.dog:*  /  192.168.1.*" required lazy>
+                  </div>
+                </div>
+                <div class="four wide column">
+                  <div v-bind:class="{'disabled':signle||running}" class="field">
+                    <label>起止范围</label>
+                    <div class="inline fields">
+                      <div class="seven wide field">
+                        <input type="number" v-bind:value="start" v-model="start" value="" placeholder="start" min="0" max="65535" required number lazy>
+                      </div>
+                      <div class="one wide field">
+                        <div class="ui transparent basic noboder large label nopadding">~</div>
+                      </div>
+                      <div class="eight wide field">
+                        <input type="number" v-bind:value="end" v-model="end" placeholder="end" min="0" max="65535" required number lazy>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="two wide column">
+                  <div v-bind:class="{'disabled':signle}" class="field">
+                    <label>并发</label>
+                    <input type="number" v-bind:value="concurrence" v-model="concurrence" placeholder="并发数量" alt="同时等待响应的最大请求数" min="1" required number lazy>
+                  </div>
+                </div>
+                <div class="two wide column">
+                  <div class="field">
+                    <label>超时</label>
+                    <input type="number" v-bind:value="timeout" v-model="timeout" placeholder="超时时间" alt="超时判定为不通" min="100" required number lazy>
+                  </div>
+                </div>
+                <div class="five wide column">
+                  <div class="ui middle aligned center aligned padded grid">
+                    <div class="equal width row nopadding">
+                      <div class="column">
+                        <button v-bind:class="{'disabled':running,'loading':running}" id="scan" class="ui primary massive button">扫描</button>
+                      </div>
+                      <div class="column">
+                        <div class="ui middle aligned center aligned padded grid">
+                          <div class="row nopadding">
+                            <div class="column">
+                              <div class="ui mini horizontal statistic">
+                                <div class="value">{{open}}</div>
+                                <div class="label">
+                                  {{scanned}}/{{total}}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row nopadding">
+                            <div class="column">
+                              <div class="ui mini horizontal statistic">
+                                <div class="value">{{time}}</div>
+                                <div class="label">秒</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </form>
+
+          <div class="ui grey inverted tiny progress" data-percent="100">
+            <div class="bar"></div>
+          </div>
+
+          <div class="ui horizontal list" v-show="result.length">
+            <div class="item" v-for="target in result | orderBy sortip">
+              <div class="ui basic large button">
+                <a href="http://{{target}}" target="_blank">
+                  <i class="ui olive empty circular label"></i> {{target}}
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="ui container" style="width:60%" v-else>
+            <div v-show="running">还没有结果呢</div>
+            <div class="ui segments" v-else>
+              <div class="ui top attached segment">
+                <p>使用说明</p>
+              </div>
+              <div class="ui attached segment">
+                <p>扫描单个目标：bidu.com / 192.168.0.1:8080</p>
+              </div>
+              <div class="ui attached segment">
+                <p>添加 * 号 按范围扫描：baidu.com:* / 192.168.*.1</p>
+              </div>
+              <div class="ui bottom attached segment">
+                设置扫描目标：
+                <div @click="setTarget(0)" class="ui basic button">baidu.com</div>
+                <div @click="setTarget(1)" class="ui basic button">baidu.com:* 端口:1~1024</div>
+                <div @click="setTarget(2)" class="ui basic button">192.168.1.*:80 ip:1~255</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/js.portscan.js"></script>
+
+  <!-- inject:js -->
+  <script src="js/jquery.js"></script>
+  <script src="js/jquery.scrollto.js"></script>
+  <script src="js/underscore.js"></script>
+  <script src="js/moment.js"></script>
+  <script src="js/lab.min.js"></script>
+  <script src="js/semantic.js"></script>
+  <script src="js/vue.js"></script>
+  <script src="js/js.later.js"></script>
+  <script src="js/js.queue.js"></script>
+  <script src="js/index.js"></script>
+  <!-- endinject -->
+
+
+  <!-- 
+  <script>
+  // 按小时刷新缓存
+  var cachehour = (Date.now() / 1000 / 60 / 60).toFixed();
+  $LAB.script("js/js.later.js" + '?' + cachehour)
+    .script("js/js.queue.js" + '?' + cachehour)
+    .script("js/js.portscan.js" + '?' + cachehour)
+    .script("js/index.js" + '?' + cachehour).wait()
+  </script>
+  -->
+</body>
+
+</html>
