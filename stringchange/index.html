@@ -80,6 +80,7 @@
       <input type="checkbox" id="isneed" onChange="MarkChange()">路径转换去引号
     </div>
     <div class="otherfun">
+      <button type="button" id="jsObj">JSON转js对象</button>
       <button type="button" id="btn1">HTML转义(escape)</button>
       <button type="button" id="btn2">HTML反转义(unescape)</button>
       <button type="button" id="singlemark">带单引号字符串</button>
@@ -122,6 +123,11 @@
     };
     $('btn2').onclick = function() {
       $("outputarea").value = _.unescape($("inputarea").value);
+      SelectTextById("outputarea");
+    };
+
+    $('jsObj').onclick = function() {
+      $("outputarea").value = parseToJsObj($("inputarea").value);
       SelectTextById("outputarea");
     };
   };
@@ -242,6 +248,66 @@
 
     SelectTextById("outputarea");
   }
+
+
+  function parseToJsObj(obj) {
+    return decode(JSON.parse(obj));
+
+    function decode(value) {
+      if(Array.isArray(value)) {
+        return decodeArray(value);
+      }
+
+      if(typeof value === 'boolean') {
+        return !!value;
+      }
+      if(typeof value === 'string') {
+        var str = JSON.stringify(value).replace(/\'/g, '\\\'');
+        return '\'' + str.substring(1, str.length - 1) + '\'';
+      }
+      if(typeof value === 'number') {
+        return value;
+      }
+      if(typeof value === 'function') {
+        return JSON.stringify(value.toString());
+      }
+      if(typeof value === 'object') {
+        return decodeObject(value);
+      }
+
+      console.log('value not decode: ', value);
+      return value;
+    }
+
+    function decodeArray(arr) {
+      return '[' + arr.map(function(item) {
+            return decode(item);
+          }).join(', ') + ']';
+    }
+
+    function decodeObject(obj) {
+
+      var str = '{'
+      for(var key in obj) {
+        if(obj.hasOwnProperty(key)) {
+          var keyStr = '';
+          if(/^[a-zA-Z0-9]+$/.test(key)) {
+            str += key;
+          }
+          else {
+            str += decode(key);
+          }
+
+          str += ':' + decode(obj[key]);
+          str += ',';
+        }
+      }
+      str = str.substring(0, str.length - 1);
+      str += '}';
+      return str;
+    }
+  }
+
   </script>
 </body>
 
