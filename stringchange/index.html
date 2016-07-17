@@ -249,63 +249,65 @@
     SelectTextById("outputarea");
   }
 
+  function parseToJsObj(str) {
+    return decode(JSON.parse(str));
+  }
 
-  function parseToJsObj(obj) {
-    return decode(JSON.parse(obj));
+  function decode(value) {
+    if(Array.isArray(value)) {
+      return decodeArray(value);
+    }
 
-    function decode(value) {
-      if(Array.isArray(value)) {
-        return decodeArray(value);
-      }
-
-      if(typeof value === 'boolean') {
-        return !!value;
-      }
-      if(typeof value === 'string') {
-        var str = JSON.stringify(value).replace(/\'/g, '\\\'');
-        return '\'' + str.substring(1, str.length - 1) + '\'';
-      }
-      if(typeof value === 'number') {
-        return value;
-      }
-      if(typeof value === 'function') {
-        return JSON.stringify(value.toString());
-      }
-      if(typeof value === 'object') {
-        return decodeObject(value);
-      }
-
-      console.log('value not decode: ', value);
+    if(typeof value === 'boolean') {
+      return !!value;
+    }
+    if(typeof value === 'string') {
+      var str = JSON.stringify(value).replace(/\'/g, '\\\'');
+      return '\'' + str.substring(1, str.length - 1) + '\'';
+    }
+    if(typeof value === 'number') {
       return value;
     }
-
-    function decodeArray(arr) {
-      return '[' + arr.map(function(item) {
-            return decode(item);
-          }).join(', ') + ']';
+    if(typeof value === 'function') {
+      return decode(value.toString());
+    }
+    if(typeof value === 'object') {
+      return decodeObject(value);
     }
 
-    function decodeObject(obj) {
+    console.log('value not decode: ', value);
+    return value.toString();
+  }
 
-      var str = '{'
-      for(var key in obj) {
-        if(obj.hasOwnProperty(key)) {
-          var keyStr = '';
-          if(/^[a-zA-Z0-9]+$/.test(key)) {
-            str += key;
-          }
-          else {
-            str += decode(key);
-          }
+  function decodeArray(arr) {
+    return '[' + arr.map(function(item) {
+          return decode(item);
+        }).join(',') + ']';
+  }
 
-          str += ':' + decode(obj[key]);
-          str += ',';
+  function decodeObject(obj) {
+    var str = '{';
+    var isNeedDelete = false;
+    for(var key in obj) {
+      if(obj.hasOwnProperty(key)) {
+        if(/^[a-zA-Z0-9]+$/.test(key)) {
+          str += key;
         }
+        else {
+          str += decode(key);
+        }
+
+        str += ':' + decode(obj[key]);
+        str += ',';
+        isNeedDelete = true;
       }
-      str = str.substring(0, str.length - 1);
-      str += '}';
-      return str;
     }
+
+    if(isNeedDelete) {
+      str = str.substring(0, str.length - 1)
+    }
+    str += '}';
+    return str;
   }
 
   </script>
