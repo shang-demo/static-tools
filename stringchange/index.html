@@ -128,12 +128,24 @@
 
     $('jsObj').onclick = function() {
       var jsSource;
+      var obj;
       try {
-        jsSource = parseToJsObj($("inputarea").value);
+        obj = eval('[' + $("inputarea").value + ']')[0];
       }
       catch(e) {
-        jsSource = $("inputarea").value
+        alert('格式不正确!');
       }
+      if(!obj) {
+        return;
+      }
+      console.log('obj: ', obj);
+      try {
+        jsSource = parseToJsObj(obj);
+      }
+      catch(e) {
+        alert('解析失败,请反馈!');
+      }
+
       if(!jsSource) {
         return;
       }
@@ -261,6 +273,9 @@
   }
 
   function parseToJsObj(str) {
+    if(typeof str === 'object') {
+      return decode(str);
+    }
     return decode(JSON.parse(str));
   }
 
@@ -269,6 +284,12 @@
       return decodeArray(value);
     }
 
+    if(value === null) {
+      return 'null';
+    }
+    if(value === undefined) {
+      return 'undefined';
+    }
     if(typeof value === 'boolean') {
       return !!value;
     }
