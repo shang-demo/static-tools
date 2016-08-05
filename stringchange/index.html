@@ -322,7 +322,7 @@
     var isNeedDelete = false;
     for(var key in obj) {
       if(obj.hasOwnProperty(key)) {
-        if(/^[a-zA-Z0-9]+$/.test(key)) {
+        if(/^[a-zA-Z_][a-zA-Z0-9_]+$/.test(key)) {
           str += key;
         }
         else {
