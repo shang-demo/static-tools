@@ -129,8 +129,14 @@
     $('jsObj').onclick = function() {
       var jsSource;
       var obj;
+
+      var str = $("inputarea").value;
+      str = str.replace(/\/\*.*\*\//gi, '');
+      str = str.replace(/ObjectId\(['"](.+)['"]\)/gi, '\'$1\'');
+      str = str.replace(/ISODate\(['"](.+)['"]\)/gi, '\'$1\'');
+
       try {
-        obj = eval('[' + $("inputarea").value + ']')[0];
+        obj = eval('[' + str + ']')[0];
       }
       catch(e) {
         alert('格式不正确!');
