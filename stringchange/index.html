@@ -77,15 +77,18 @@
       <button type="button" onclick="ReplaceLineNu()">去代码行号</button>
       <button type="button" class="smallbtn" onclick="getLen()">长度</button>
       <button type="button" class="smallbtn" onclick="EmptyAll()">清空</button>
-      <input type="checkbox" id="isneed" onChange="MarkChange()">路径转换去引号
+      <input type="checkbox" id="isneed" onChange="MarkChange(0)">路径转换去引号
     </div>
     <div class="otherfun">
-      <button type="button" id="jsObj">JSON转js对象</button>
       <button type="button" id="btn1">HTML转义(escape)</button>
       <button type="button" id="btn2">HTML反转义(unescape)</button>
       <button type="button" id="singlemark">带单引号字符串</button>
       <button type="button" id="doublemark">带双引号字符串</button>
-      <input type="checkbox" id="arrayssel" checked>引号是否数组拼接
+      <input type="checkbox" id="arrayssel" onChange="MarkChange(1)" checked>引号是否数组拼接
+    </div>
+    <div class="otherfun">
+      <button type="button" id="jsObj">JSON转js对象</button>
+      <button type="button" id="requestOpt">request-options</button>
     </div>
     <textarea id="outputarea" class="autoselect" placeholder="转换后的字符串...."></textarea>
   </center>
@@ -102,6 +105,13 @@
     } else {
       localStorage.quotation_mark = 0;
       $("isneed").checked = false;
+    }
+
+    if (localStorage.arrayssel === null || localStorage.arrayssel === '1') {
+      $("arrayssel").checked = true;
+    } else {
+      localStorage.arrayssel = 0;
+      $("arrayssel").checked = false;
     }
 
     //  聚焦 全选
@@ -127,47 +137,59 @@
     };
 
     $('jsObj').onclick = function() {
-      var jsSource;
-      var obj;
 
       var str = $("inputarea").value;
-      str = str.replace(/\/\*.*\*\//gi, '');
-      str = str.replace(/ObjectId\(['"](.+)['"]\)/gi, '\'$1\'');
-      str = str.replace(/ISODate\(['"](.+)['"]\)/gi, '\'$1\'');
+      $("outputarea").value = getBeautifyStr(str);
+      SelectTextById("outputarea");
+    };
 
-      try {
-        obj = eval('[' + str + ']')[0];
-      }
-      catch(e) {
-        alert('格式不正确!');
-      }
-      if(!obj) {
-        return;
-      }
-      console.log('obj: ', obj);
-      try {
-        jsSource = parseToJsObj(obj);
-      }
-      catch(e) {
-        alert('解析失败,请反馈!');
-      }
-
-      if(!jsSource) {
-        return;
-      }
-      
-      $("outputarea").value = js_beautify(jsSource, 2, ' ');
+    $('requestOpt').onclick = function (){
+      $("outputarea").value = getBeautifyStr(getRequestOpt($("inputarea").value));
       SelectTextById("outputarea");
     };
   };
 
+  function getBeautifyStr(str){
+    var obj;
+    var jsSource;
+
+    str = str.replace(/\/\*.*\*\//gi, '');
+    str = str.replace(/ObjectId\(['"](.+)['"]\)/gi, '\'$1\'');
+    str = str.replace(/ISODate\(['"](.+)['"]\)/gi, '\'$1\'');
+
+    try {
+      obj = eval('[' + str + ']')[0];
+    }
+    catch(e) {
+      alert('格式不正确!');
+    }
+    if(!obj) {
+      return;
+    }
+    console.log('obj: ', obj);
+    try {
+      jsSource = parseToJsObj(obj);
+    }
+    catch(e) {
+      alert('解析失败,请反馈!');
+    }
+
+    if(!jsSource) {
+      return;
+    }
+      
+    return js_beautify(jsSource, 2, ' ');
+  }
+
+  var selectTimer = null;
   function focusselect() {
+    clearTimeout(selectTimer);
     var _this = this;
-    setTimeout(
+    selectTimer = setTimeout(
       function() {
         _this.select();
       },
-      30
+      300
     );
   }
 
@@ -198,8 +220,13 @@
     SelectTextById('outputarea');
   }
 
-  function MarkChange() {
-    localStorage.quotation_mark = Math.abs(localStorage.quotation_mark - 1);
+  function MarkChange(type) {
+    if(type === 0) {
+      localStorage.quotation_mark = Math.abs(localStorage.quotation_mark - 1);
+    }
+    else {
+      localStorage.arrayssel = Math.abs(localStorage.arrayssel - 1);
+    }
   }
 
   function $(id) {
@@ -346,6 +373,15 @@
     }
     str += '}';
     return str;
+  }
+
+  function getRequestOpt(str){
+    var result;
+    var matchArr = str.match(/var\s+options\s*=\s*([\d\D]*)(?=;[\r\n\s]*request\(options)/gi);
+    if(matchArr.length) {
+      result = matchArr[0].replace(/var\s+options\s*=\s*/i, '').replace(/'accept-encoding.*[\r\n]/, '');
+    }
+    return result;
   }
 
   function js_beautify(js_source_text, indent_size, indent_character, indent_level) {
