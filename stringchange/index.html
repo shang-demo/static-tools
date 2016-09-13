@@ -88,6 +88,7 @@
     </div>
     <div class="otherfun">
       <button type="button" id="jsObj">JSON转js对象</button>
+      <button type="button" id="jsMin">jsmin</button>
       <button type="button" id="requestOpt">request-options</button>
       <!-- <button type="button" id="winstonChange">winston</button> -->
     </div>
@@ -95,6 +96,7 @@
   </center>
 
   <!-- inject:js -->
+  <script src="jsmin.js"></script>
   <script src="underscore-min.js"></script>
   <!-- endinject -->
 
@@ -143,6 +145,12 @@
       $("outputarea").value = getBeautifyStr(str);
       SelectTextById("outputarea");
     };
+
+    $('jsMin').onclick = function() {
+      var str = $('inputarea').value;
+      $('outputarea').value = jsmin(str).code.replace(/\n/, '');
+      SelectTextById('outputarea');
+    }
 
     $('requestOpt').onclick = function (){
       $("outputarea").value = getBeautifyStr(getRequestOpt($("inputarea").value));
