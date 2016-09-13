@@ -89,6 +89,7 @@
     <div class="otherfun">
       <button type="button" id="jsObj">JSON转js对象</button>
       <button type="button" id="requestOpt">request-options</button>
+      <!-- <button type="button" id="winstonChange">winston</button> -->
     </div>
     <textarea id="outputarea" class="autoselect" placeholder="转换后的字符串...."></textarea>
   </center>
@@ -147,6 +148,13 @@
       $("outputarea").value = getBeautifyStr(getRequestOpt($("inputarea").value));
       SelectTextById("outputarea");
     };
+
+    $('winstonChange').onclick = function (){
+      var str = $("inputarea").value;
+      $("outputarea").value = getBeautifyStr(JSON.stringify(decodeWinstonStr(str)));
+      SelectTextById("outputarea");
+    };
+
   };
 
   function getBeautifyStr(str){
@@ -382,6 +390,38 @@
       result = matchArr[0].replace(/var\s+options\s*=\s*/i, '').replace(/'accept-encoding.*[\r\n]/, '');
     }
     return result;
+  }
+
+  function decodeWinstonStr(str) {
+    var qs = {};
+    str.split(/&|,\s*/).forEach(function(item) {
+      var s = item.split('=');
+      var k = s[0];
+      var v = s[1] && decodeURIComponent(s[1]);
+      try {
+        v = new Function('return ' + v)();
+      } catch (e) {
+        console.log(e);
+      }
+
+      if(k === '$ref') {
+        console.log('k: ', k, s[1]);
+        var temp = qs;
+        qs = {};
+        qs[s[1]] = temp;
+      }
+      else {
+        (qs[k] = qs[k] || []).push(v);
+      }
+    });
+
+    Object.keys(qs).forEach(function(key) {
+      if (qs[key] && qs[key].length === 1) {
+        qs[key] = qs[key][0];
+      }
+    });
+    console.log('qs: ', qs);
+    return qs;
   }
 
   function js_beautify(js_source_text, indent_size, indent_character, indent_level) {
