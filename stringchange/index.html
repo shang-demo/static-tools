@@ -90,13 +90,16 @@
       <button type="button" id="jsObj">JSON转js对象</button>
       <button type="button" id="jsMin">jsmin</button>
       <button type="button" id="requestOpt">request-options</button>
-      <!-- <button type="button" id="winstonChange">winston</button> -->
+      <button type="button" id="qrcode">qrcode</button>
+      <button type="button" style="display: none;" id="winstonChange">winston</button>
     </div>
+    <div id="placeHolder"></div>
     <textarea id="outputarea" class="autoselect" placeholder="转换后的字符串...."></textarea>
   </center>
 
   <!-- inject:js -->
   <script src="jsmin.js"></script>
+  <script src="qrcode.js"></script>
   <script src="underscore-min.js"></script>
   <!-- endinject -->
 
@@ -163,6 +166,21 @@
       SelectTextById("outputarea");
     };
 
+    $('qrcode').onclick = function (){
+      var str = $('inputarea').value;
+      if(!str) {
+        $('placeHolder').innerHTML = '';
+        return;
+      }
+
+      var typeNumber = 8;
+      var errorCorrectionLevel = 'L';
+      var qr = qrcode(typeNumber, errorCorrectionLevel);
+      qr.addData(str);
+      qr.make();
+      $('placeHolder').innerHTML = qr.createSvgTag(3);
+    };
+
   };
 
   function getBeautifyStr(str){
@@ -199,7 +217,13 @@
 
   var selectTimer = null;
   function focusselect() {
+    if(!selectTimer) {
+      this.select();
+      return;
+    }
+
     clearTimeout(selectTimer);
+    selectTimer = null;
     var _this = this;
     selectTimer = setTimeout(
       function() {
@@ -280,6 +304,8 @@
   function EmptyAll() {
     $("inputarea").value = "";
     $("outputarea").value = "";
+    $('placeHolder').innerHTML = '';
+
     SelectTextById("inputarea");
   }
 
@@ -289,7 +315,7 @@
     clearTimeout(timer);
     timer = setTimeout(function() {
       document.getElementById(id).select();
-    }, 30);
+    }, 0);
   }
 
   function changeMarks(isArraySel, marks) {
