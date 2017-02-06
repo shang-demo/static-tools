@@ -15,11 +15,14 @@ if (targetPath === 'index') {
 
 if (targetPath) {
   targetPath = path.resolve(__dirname, '../' + targetPath);
-  build(targetPath, 1);
+  build(targetPath);
 } else {
   P.map(config.projects, function(project, index) {
       console.log('index: ', index);
       console.log(project.name);
+      if(project.url) {
+        return null;
+      }
       if (project.copy === true) {
         targetPath = path.resolve(__dirname, '../copy/' + project.name);
         return copy(targetPath).reflect();
@@ -50,7 +53,9 @@ if (targetPath) {
         console.error('error projects: ', config.projects[i]);
         console.error(JSON.stringify(inspection.reason(), null, 2))
       }
-      indexHtml();
+    })
+    .then(function () {
+      return indexHtml();
     })
     .catch(function(e) {})
 }
@@ -81,7 +86,7 @@ function copy(targetPath, targetStaticPath) {
 }
 
 function build(targetPath, index) {
-  index = index === undefined ? '' : index;
+  index = index === undefined ? 0 : index;
   var targetPublicPath = path.resolve(__dirname, targetPath);
   var targetStaticPath;
 
@@ -147,10 +152,14 @@ function execCmd(cmd, arg, options) {
 
 function indexHtml() {
   var arr = config.projects.map(function(project) {
+
+    if(project.url) {
+      return '\'<a href="' + project.url + '" target="_blank">' + (project.intro || project.name) + '</a>\'';
+    }
+
     return '\'<a href="./' + project.name + '/" target="_blank">' + (project.intro || project.name) + '</a>\''
   });
-
-
+  
   fs.readFileAsync('./index.html')
     .then(function(data) {
       var str = (data + '').replace('var arr = [];', 'var arr=[' + arr.join(',') + '];');

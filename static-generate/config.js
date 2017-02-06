@@ -16,8 +16,6 @@ module.exports = {
     name: 'ssh-site',
     copy: true
   }, {
-    name: 'detection'
-  }, {
     name: 'port-scan',
     copy: ['js/js.portscan.js']
   }, {
@@ -30,5 +28,10 @@ module.exports = {
     copy: true
   }, {
   	name: 'charref'
+  }, {
+    name: 'ip-detect',
+    url: 'http://ip-detect.leanapp.cn/',
+  }, {
+    name: 'browser-detect'
   }]
 };
