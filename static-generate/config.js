@@ -11,6 +11,8 @@ module.exports = {
   }, {
     name: 'runhtml'
   }, {
+    name: 'cron'
+  }, {
     name: 'ssh-site',
     copy: true
   }, {

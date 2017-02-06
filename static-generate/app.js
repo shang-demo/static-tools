@@ -14,7 +14,8 @@ if (targetPath === 'index') {
 }
 
 if (targetPath) {
-  build(targetPath);
+  targetPath = path.resolve(__dirname, '../' + targetPath);
+  build(targetPath, 1);
 } else {
   P.map(config.projects, function(project, index) {
       console.log('index: ', index);

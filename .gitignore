@@ -29,4 +29,5 @@ _ReSharper*/
 [Tt]est[Rr]esult*
 
 deploy/**
+node_modules/
 .idea
