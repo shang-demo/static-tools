@@ -5,7 +5,7 @@ static:
 	gulp static
 	cd static && hs
 deploy:
-	rsync --exclude .tmp --exclude node_modules -azvF -e "ssh -p 22" ../deploy/  root@139.129.92.153:/root/shang/static
+	rsync --exclude .tmp --exclude node_modules -azvF -e "ssh -p 22" ../deploy/  feng@139.129.92.153:/home/feng/shang/static
 push:
 	git push origin master
 test:

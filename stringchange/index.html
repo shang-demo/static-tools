@@ -90,10 +90,6 @@
       <button type="button" id="jsObj">JSON转js对象</button>
       <button type="button" id="jsMin">jsmin</button>
       <button type="button" id="qrcode">qrcode</button>
-      <button type="button" id="requestOpt">request-options</button>
-      <button type="button" id="funcChangeParam">function参数修改</button>
-      <button type="button" style="display: none;" id="winstonChange">winston</button>
-
     </div>
     <div id="placeHolder"></div>
     <textarea id="outputarea" class="autoselect" placeholder="转换后的字符串...."></textarea>
@@ -156,18 +152,8 @@
       var str = $('inputarea').value;
       $('outputarea').value = jsmin(str).code.replace(/\n/, '');
       SelectTextById('outputarea');
-    }
-
-    $('requestOpt').onclick = function (){
-      $("outputarea").value = getBeautifyStr(getRequestOpt($("inputarea").value));
-      SelectTextById("outputarea");
     };
 
-    $('winstonChange').onclick = function (){
-      var str = $("inputarea").value;
-      $("outputarea").value = getBeautifyStr(JSON.stringify(decodeWinstonStr(str)));
-      SelectTextById("outputarea");
-    };
 
     $('qrcode').onclick = function (){
       var str = $('inputarea').value;
@@ -182,13 +168,6 @@
       qr.addData(str);
       qr.make();
       $('placeHolder').innerHTML = qr.createSvgTag(3);
-    };
-
-    $('funcChangeParam').onclick = function (){
-      var str = $("inputarea").value;
-      var optName = $("from").value;
-      $("outputarea").value = functionParamsChange(str, optName).join('\n\n');
-      SelectTextById("outputarea");
     };
 
   };
@@ -425,69 +404,6 @@
     }
     str += '}';
     return str;
-  }
-
-  function getRequestOpt(str){
-    var result;
-    var matchArr = str.match(/var\s+options\s*=\s*([\d\D]*)(?=;[\r\n\s]*request\(options)/gi);
-    if(matchArr.length) {
-      result = matchArr[0].replace(/var\s+options\s*=\s*/i, '').replace(/'accept-encoding.*[\r\n]/, '');
-    }
-    return result;
-  }
-
-  function decodeWinstonStr(str) {
-    var qs = {};
-    str.split(/&|,\s*/).forEach(function(item) {
-      var s = item.split('=');
-      var k = s[0];
-      var v = s[1] && decodeURIComponent(s[1]);
-      try {
-        v = new Function('return ' + v)();
-      } catch (e) {
-        console.log(e);
-      }
-
-      if(k === '$ref') {
-        console.log('k: ', k, s[1]);
-        var temp = qs;
-        qs = {};
-        qs[s[1]] = temp;
-      }
-      else {
-        (qs[k] = qs[k] || []).push(v);
-      }
-    });
-
-    Object.keys(qs).forEach(function(key) {
-      if (qs[key] && qs[key].length === 1) {
-        qs[key] = qs[key][0];
-      }
-    });
-    console.log('qs: ', qs);
-    return qs;
-  }
-
-  function functionParamsChange(str, optName) {
-    optName = optName || 'opt';
-    var strFrom = '';
-    var strTo = '{\n';
-    str.replace(/\n/g, '').split(',')
-      .map(function(key) {
-        key = key.trim();
-        if(!key) {
-          return null;
-        }
-        strFrom += `var ${key} = ${optName}.${key};\n`;
-        strTo += `  ${key}: ${key},\n`;
-      })
-      .filter(function(item){
-        return !!item;
-      });
-
-    strTo += '}';
-
-    return [strFrom, strTo]
   }
 
   </script>
