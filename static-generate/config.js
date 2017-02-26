@@ -5,7 +5,8 @@ module.exports = {
     name: 'je',
     copy: true
   }, {
-    name: 'stringchange'
+    name: 'stringchange',
+    copy: ['jsmin.js']
   }, {
     name: 'regexp'
   }, {

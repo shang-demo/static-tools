@@ -96,8 +96,10 @@
     <textarea id="outputarea" class="autoselect" placeholder="转换后的字符串...."></textarea>
   </center>
 
-  <!-- inject:js -->
+
   <script src="jsmin.js"></script>
+
+  <!-- inject:js -->
   <script src="js-beautify.js"></script>
   <script src="qrcode.js"></script>
   <script src="underscore-min.js"></script>
@@ -151,7 +153,7 @@
 
     $('jsMin').onclick = function() {
       var str = $('inputarea').value;
-      $('outputarea').value = jsmin(str).code.replace(/\n/, '');
+      $('outputarea').value = jsmin(str).replace(/[\r\n]/g, '');
       SelectTextById('outputarea');
     };
 

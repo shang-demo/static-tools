@@ -1,9 +1,13 @@
 {
   "name": "regexp",
   "version": "0.1.0",
+  "scripts": {
+    "bundleStringChange": "webpack -p bundle/stringchange/jsmin.js bundle/jsmin-bundle.js && mv ./bundle/jsmin-bundle.js ../stringchange/jsmin.js"
+  },
   "dependencies": {
     "chalk": "^1.1.1",
-    "gulp": "gulpjs/gulp#4.0"
+    "gulp": "gulpjs/gulp#4.0",
+    "jsmin": "^1.0.1"
   },
   "devDependencies": {
     "bluebird": "^3.4.1",
@@ -32,6 +36,7 @@
     "node-notifier": "^4.2.3",
     "streamqueue": "^1.1.1",
     "supertest": "^1.0.1",
-    "through2": "^2.0.0"
+    "through2": "^2.0.0",
+    "webpack": "^2.2.1"
   }
 }
