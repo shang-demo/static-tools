@@ -1,0 +1,20 @@
+{
+  "name": "browser-detect",
+  "authors": [
+    "xinshangshangxin <xinshangshangxin@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ua-parser-js": "^0.7.12"
+  }
+}

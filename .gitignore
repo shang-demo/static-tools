@@ -32,3 +32,4 @@ deploy/**
 node_modules/
 .idea
 stringchange/js/jsmin.js
+bower_components/

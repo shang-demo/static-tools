@@ -183,7 +183,7 @@ function indexHtml() {
     return '\'<a href="./' + project.name + '/" target="_blank">' + (project.intro || project.name) + '</a>\''
   });
 
-  fs.readFileAsync('./index.html')
+  return fs.readFileAsync('./index.html')
     .then(function (data) {
       var str = (data + '').replace('var arr = [];', 'var arr=[' + arr.join(',') + '];');
       return fs.writeFile('../deploy/index.html', str);
