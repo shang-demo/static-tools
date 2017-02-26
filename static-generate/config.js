@@ -18,7 +18,10 @@ module.exports = {
     copy: true
   }, {
     name: 'port-scan',
-    copy: ['js/js.portscan.js']
+    copy: [{
+      src: 'js/js.portscan.js',
+      dest: 'js/js.portscan.js',
+    }]
   }, {
     name: 'RGB'
   }, {
