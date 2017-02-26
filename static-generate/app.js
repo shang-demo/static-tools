@@ -30,8 +30,7 @@ P
     }
     var targetPath = '';
     if (project.copy === true) {
-      targetPath = path.resolve(__dirname, '../copy/' + project.name);
-      return copy(targetPath).reflect();
+      return copy(project).reflect();
     }
 
     return P
@@ -43,9 +42,7 @@ P
       .then(function (data) {
         if (project.copy && project.copy.length) {
           return P.map(project.copy, function (item) {
-            var copyFile = path.resolve(__dirname, '../' + project.name + '/' + item);
-            console.log('copyFile: ', copyFile);
-            return copy(copyFile, path.resolve(__dirname, '../deploy/' + project.name + '/' + item));
+            return copy(project, item);
           });
         }
         return data;
@@ -58,7 +55,7 @@ P
     }
     else {
       console.error('error projects: ', config.projects[i]);
-      console.error('error reason:', JSON.stringify(inspection.reason(), null, 2))
+      console.error('error reason:', inspection.reason())
     }
   })
   .then(function () {
@@ -67,15 +64,49 @@ P
   .catch(function (e) {
   });
 
-function copy(targetPath, targetStaticPath) {
-  var targetPublicPath = path.resolve(__dirname, targetPath);
 
-  return fs.statAsync(targetPublicPath)
+function pathResolve(project, src, prefixPath) {
+  src = src || '';
+  prefixPath = prefixPath || '';
+  var resolvedPath;
+  // 绝对路径
+  if (path.isAbsolute(src)) {
+    resolvedPath = src;
+  }
+  // 相对路径
+  else if (/^\./.test(src)) {
+    resolvedPath = path.join(__dirname, src);
+  }
+  // 相对 project路径
+  else {
+    resolvedPath = path.join(__dirname, prefixPath || '', project.name, src);
+  }
+
+  return resolvedPath;
+}
+function copy(project, src, dest) {
+  var srcPath;
+  var destPath;
+
+  if (src && src.src && src.dest) {
+    dest = src.dest;
+    src = src.src;
+  }
+
+  // 项目直接复制
+  if (project && !src && !dest) {
+    srcPath = path.join(__dirname, '../copy', project.name);
+    destPath = path.join(__dirname, '../deploy', project.name);
+  }
+  else {
+    srcPath = pathResolve(project, src, '../');
+    destPath = pathResolve(project, dest, '../deploy');
+  }
+
+  console.info('copy -r ' + srcPath + ' ' + destPath);
+  return fs.statAsync(srcPath)
     .then(function () {
-      targetStaticPath = targetStaticPath || path.resolve(__dirname, '../deploy/' + targetPublicPath.replace(/.*[\\\/]/, ''));
-    })
-    .then(function () {
-      return execCmd('cp', ['-r', targetPublicPath, targetStaticPath]);
+      return execCmd('cp', ['-r', srcPath, destPath]);
     });
 }
 
