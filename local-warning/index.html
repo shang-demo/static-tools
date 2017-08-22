@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+</head>
+<body>
+  <h1 style="color: red">注意,这里应该是本机调试环境,但是未跳转本机!!!!!</h1>
+  <hr>
+  <div id="content"></div>
+  <!-- <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script> -->
+  <script type="text/javascript">
+  var arr = window.location.search.replace(/^\?/, '').split('&');
+
+  var txtArr = [];
+
+  arr.forEach(function (item) {
+  	var arr = item.split('=');
+  	var isPushBr = false;
+  	if(arr[0]) {
+  		isPushBr = true;
+  		txtArr.push(decodeURIComponent(arr[0]))
+  	}
+  	if(arr[1]) {
+  		isPushBr = true;
+  		txtArr.push(':&nbsp; &nbsp; ');
+  		txtArr.push(decodeURIComponent(arr[1]));
+  	}
+  	txtArr.push('<br>');
+  })
+
+  document.getElementById('content').innerHTML = txtArr.join('');
+  </script>
+</body>
+</html>

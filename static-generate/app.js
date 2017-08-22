@@ -20,6 +20,7 @@ if (targetProjects.length) {
   console.info('config.projects: ', config.projects);
 }
 
+  console.info('config.projects: ', config.projects);
 
 P
   .map(config.projects, function (project, index) {
@@ -174,14 +175,17 @@ function execCmd(cmd, arg, options) {
 }
 
 function indexHtml() {
-  var arr = config.projects.map(function (project) {
+  var arr = config.projects
+    .filter(function (project) {
+      return project.indexShow !== false;
+    })
+    .map(function (project) {
+      if (project.url) {
+        return '\'<a href="' + project.url + '" target="_blank">' + (project.intro || project.name) + '</a>\'';
+      }
 
-    if (project.url) {
-      return '\'<a href="' + project.url + '" target="_blank">' + (project.intro || project.name) + '</a>\'';
-    }
-
-    return '\'<a href="./' + project.name + '/" target="_blank">' + (project.intro || project.name) + '</a>\''
-  });
+      return '\'<a href="./' + project.name + '/" target="_blank">' + (project.intro || project.name) + '</a>\'';
+    });
 
   return fs.readFileAsync('./index.html')
     .then(function (data) {

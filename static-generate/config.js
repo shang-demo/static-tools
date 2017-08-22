@@ -37,5 +37,13 @@ module.exports = {
     url: 'http://ip-detect.leanapp.cn/',
   }, {
     name: 'browser-detect'
+  }, {
+    name: 'magic',
+  }, {
+    name: 'local-warning',
+    indexShow: false,
+  }, {
+    name: 'echo-search',
+    indexShow: false,
   }]
 };

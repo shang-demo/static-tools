@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/highlight.js/9.5.0/styles/monokai-sublime.min.css">
+    <title></title>
+</head>
+
+<body style="background: black">
+    <div id="content"></div>
+    <script type="text/javascript">
+    var qs = {};
+    location.search.substr(1).split("&").forEach(function(item) {
+        var s = item.split("=");
+        var k = s[0];
+        var v = s[1] && decodeURIComponent(s[1]);
+        try { v = new Function("return " + v)(); } catch (e) {}
+        (qs[k] = qs[k] || []).push(v);
+    });
+    Object.keys(qs).forEach(function(key) { if (qs[key] && qs[key].length === 1) { qs[key] = qs[key][0]; } });
+    document.getElementById('content').innerHTML = '<pre><code>' + JSON.stringify(qs, null, 2) + '</code></pre>';
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/highlight.js/9.5.0/highlight.min.js"></script>
+    <script>
+    hljs.initHighlightingOnLoad();
+    </script>
+</body>
+
+</html>
