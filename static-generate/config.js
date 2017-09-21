@@ -8,7 +8,10 @@ module.exports = {
     name: 'stringchange',
     copy: ['jsmin.js']
   }, {
-    name: 'regexp'
+    name: 'regexp',
+    url: 'https://regexp.xinshangshangxin.com/',
+  }, {
+    name: 'regexp-parsing'
   }, {
     name: 'runhtml'
   }, {
