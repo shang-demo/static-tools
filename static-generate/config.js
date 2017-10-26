@@ -42,6 +42,7 @@ module.exports = {
     name: 'browser-detect'
   }, {
     name: 'magic',
+    indexShow: false,
   }, {
     name: 'local-warning',
     indexShow: false,

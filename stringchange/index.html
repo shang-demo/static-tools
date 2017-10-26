@@ -11,7 +11,7 @@
     font-weight: 400;
     text-align: center;
     cursor: pointer;
-    background-image: none;
+    background: #C0C0C0;
     border: 1px solid transparent;
     white-space: nowrap;
     padding: 6px 12px;
@@ -103,6 +103,7 @@
   <script src="js-beautify.js"></script>
   <script src="qrcode.js"></script>
   <script src="underscore-min.js"></script>
+  <script src="json5-1.0.0-beta.min.js"></script>
   <!-- endinject -->
 
   <script>
@@ -184,25 +185,13 @@
     str = str.replace(/ISODate\(['"](.+)['"]\)/gi, '\'$1\'');
 
     try {
-      obj = eval('[' + str + ']')[0];
+      jsSource = JSON5.stringify(JSON5.parse(str), { quote: '\'' });
     }
-    catch(e) {
-      alert('格式不正确!');
-    }
-    if(!obj) {
-      return;
-    }
-    console.log('obj: ', obj);
-    try {
-      jsSource = parseToJsObj(obj);
-    }
-    catch(e) {
-      alert('解析失败,请反馈!');
+    catch (e) {
+      console.warn(e);
+      return e.message;
     }
 
-    if(!jsSource) {
-      return;
-    }
 
     return js_beautify(jsSource, 2, ' ');
   }
