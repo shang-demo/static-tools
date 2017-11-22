@@ -177,12 +177,16 @@
   };
 
   function getBeautifyStr(str){
-    var obj;
     var jsSource;
 
     str = str.replace(/\/\*.*\*\//gi, '');
     str = str.replace(/ObjectId\(['"](.+)['"]\)/gi, '\'$1\'');
     str = str.replace(/ISODate\(['"](.+)['"]\)/gi, '\'$1\'');
+
+    // python
+    str = str.replace(/:\s*None,/gi, ':null,');
+    str = str.replace(/:\s*True,/gi, ':true,');
+    str = str.replace(/:\s*False,/gi, ':false,');
 
     try {
       jsSource = JSON5.stringify(JSON5.parse(str), { quote: '\'' });
