@@ -41,7 +41,7 @@ module.exports = {
   }, {
     name: 'browser-detect'
   }, {
-    name: 'magic',
+    name: 'cloudnapps',
     indexShow: false,
   }, {
     name: 'local-warning',
