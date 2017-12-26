@@ -5,6 +5,13 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <link rel="shortcut icon" href="//static.xinshangshangxin.com/favicon.ico">
   <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+  <style>
+    body {
+      font-family: Menlo, Consolas, "Source Code Pro", Inconsolata, Monaco, "Courier New";
+      margin: 0 20px;
+    }
+  </style>
 </head>
 
 <body>
@@ -342,7 +349,6 @@ server {
         result = `${result} <tr><td>${obj.str}</td><td>${obj.name}</td></tr>`;
         return result;
       }, '');
-
 
 
     $('#jobResult').html(`<tr>
