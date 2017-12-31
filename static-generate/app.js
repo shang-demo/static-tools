@@ -39,6 +39,9 @@ Promise
       .resolve()
       .then(function () {
         targetPath = path.resolve(__dirname, '../' + project.name);
+        if (project.build === false) {
+          return null;
+        }
         return build(targetPath, index);
       })
       .then(function (data) {

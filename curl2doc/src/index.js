@@ -1,123 +1,84 @@
-const parseCurl = require('parse-curl');
-const JSON5 = require('json5');
-const url = require('url');
-const showdown = require('showdown');
+require('./index.css');
 
-const classMap = {
-  table: 'table table-bordered',
-};
-const bindings = Object.keys(classMap)
-  .map(key => ({
-    type: 'output',
-    regex: new RegExp(`<${key}([^>]*)>`, 'g'),
-    replace: `<${key} $1 class="${classMap[key]}">`
-  }));
+const curl2doc = require('./curl2doc');
+const makeHtml = require('./make-html');
 
-const converter = new showdown.Converter({
-  extensions: [...bindings],
-  tables: true,
+
+function loadOptions() {
+  let options = getConfig();
+  $('#space').val(options.space);
+  $('#showCurl').prop('checked', options.curl);
+  $('#showHeader').prop('checked', options.header);
+  $('#showHeaderAuthorization').prop('checked', options.headerAuthorization);
+}
+
+function loadBtnCopy(selector) {
+  let clipboard = new Clipboard(selector);
+
+  clipboard.on('success', function (e) {
+    console.info('Action:', e.action);
+    console.info('Text:', e.text);
+    console.info('Trigger:', e.trigger);
+
+    e.clearSelection();
+  });
+
+  clipboard.on('error', function (e) {
+    console.error('Action:', e.action);
+    console.error('Trigger:', e.trigger);
+  });
+}
+
+function getConfig() {
+  let str = localStorage.getItem('options');
+  try {
+    return JSON.parse(str) || {};
+  }
+  catch (e) {
+    return {};
+  }
+}
+
+function saveConfig(options) {
+  localStorage.setItem('options', JSON.stringify(options));
+}
+
+function watchInputField(selector, fun) {
+  $(selector).bind('input propertychange', fun);
+}
+
+function showDoc() {
+  let str = $('#curlStr').val();
+  let space = parseInt($('#space').val()) || 0;
+  let showCurl = !!$('#showCurl').prop('checked');
+  let header = !!$('#showHeader').prop('checked');
+  let headerAuthorization = !!$('#showHeaderAuthorization').prop('checked');
+  let options = { space, curl: showCurl, header, headerAuthorization };
+  console.info('options: ', options);
+  saveConfig(options);
+
+  let doc = curl2doc(str, options);
+
+  $('#doc').val(doc);
+  showHtml();
+}
+
+function showHtml() {
+  $('#html').html(
+    makeHtml($('#doc').val())
+  );
+}
+
+watchInputField('#curlStr', showDoc);
+watchInputField('#space', showDoc);
+watchInputField('#showCurl', showDoc);
+watchInputField('#doc', showHtml);
+
+$('input[type=checkbox]').bind('change', function () {
+  showDoc();
 });
 
+loadBtnCopy('.copy-btn');
 
-function toString(value, { space = 2 } = {}) {
-  if (!value) {
-    return '';
-  }
-
-  try {
-    value = JSON.parse(value);
-  }
-  catch (e) {
-
-  }
-
-  let type = ({}).toString.call(value);
-  type = type.substring(8, type.length - 1);
-  if (type === 'String' || type === 'Number' || type === 'Boolean') {
-    return value;
-  }
-  if (type === 'RegExp') {
-    return value.valueOf() + value.flags;
-  }
-
-  return JSON.stringify(value, null, space).replace(/[\r\n]/g, '<br>').replace(/\s/g, '&nbsp;');
-}
-
-function buildDoc(obj, { curl, space, header, headerAuthorization } = {}) {
-  console.info('obj: ', obj);
-  let str = '';
-  str += `### URL  
-\`${obj.method} ${obj.pathname}\`
-`;
-
-  if (header && obj.header && Object.keys(obj.header).length) {
-    str += '### Header  \n参数名 | 例子 | 描述 |\n---- | ---| ---\n';
-
-    Object.keys(obj.header).forEach((key) => {
-      console.info('key: ', key, headerAuthorization);
-      if (!headerAuthorization && key === 'authorization') {
-        return;
-      }
-
-      str += `${key} | ${toString(obj.header[key], { space })} | \n`;
-    });
-  }
-
-  if (obj.query && Object.keys(obj.query).length) {
-    str += '### Query String  \n参数名 | 例子 | 描述 |\n---- | ---| ---\n';
-
-    Object.keys(obj.query).forEach((key) => {
-      str += `${key} | ${toString(obj.query[key], { space })} | \n`;
-    });
-  }
-
-  if (obj.body && Object.keys(obj.body).length) {
-    str += '### Body  \n参数名 | 例子 | 描述 |\n---- | ---| ---  \n';
-
-    Object.keys(obj.body).forEach((key) => {
-      str += `${key} | ${toString(obj.body[key], { space })} | \n`;
-    });
-  }
-
-  if (curl) {
-    str += '### curl  \n\n```bash\n' + obj.curl + '\n```\n';
-  }
-
-  return str;
-}
-
-function curl2doc(str = '', { doc = true, curl = true, space = 2, header = false, headerAuthorization = false } = {}) {
-  str = str.trim();
-  let parseResult = parseCurl(str);
-
-  if (parseResult.header && parseResult.header['content-type']) {
-    delete parseResult.header['Content-Type'];
-  }
-
-  try {
-    if (parseResult.body) {
-      parseResult.body = JSON5.parse(parseResult.body);
-    }
-  }
-  catch (e) {
-  }
-
-  let qs = url.parse(parseResult.url, true);
-
-  parseResult.query = qs.query;
-  parseResult.pathname = qs.pathname;
-  parseResult.curl = str;
-
-  if (!doc) {
-    return parseResult;
-  }
-
-  return buildDoc(parseResult, { curl, space, header, headerAuthorization });
-}
-
-function makeHtml(str) {
-  return converter.makeHtml(str);
-}
-
-window.curl2doc = curl2doc;
-window.makeHtml = makeHtml;
+loadOptions();
+showDoc();

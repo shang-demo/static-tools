@@ -5,13 +5,7 @@
   <link rel="shortcut icon" href="//static.xinshangshangxin.com/favicon.ico">
   <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <title>curl to doc</title>
-  <style>
-    pre {
-      padding: 0;
-      background-color: inherit;
-      border: none;
-    }
-  </style>
+  <link rel="stylesheet" href="index?_inline">
 </head>
 <body class="container">
 <div class="row">
@@ -75,88 +69,7 @@
 <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.7.1/clipboard.min.js"></script>
 <!-- inject:js -->
-<script src="lib/bundle.js"></script>
+<script src="index"></script>
 <!-- endinject -->
-<script>
-
-  function loadOptions() {
-    let options = getConfig();
-    $('#space').val(options.space);
-    $('#showCurl').prop('checked', options.curl);
-    $('#showHeader').prop('checked', options.header);
-    $('#showHeaderAuthorization').prop('checked', options.headerAuthorization);
-  }
-
-  function loadBtnCopy(selector) {
-    var clipboard = new Clipboard(selector);
-
-    clipboard.on('success', function (e) {
-      console.info('Action:', e.action);
-      console.info('Text:', e.text);
-      console.info('Trigger:', e.trigger);
-
-      e.clearSelection();
-    });
-
-    clipboard.on('error', function (e) {
-      console.error('Action:', e.action);
-      console.error('Trigger:', e.trigger);
-    });
-  }
-
-  function getConfig() {
-    let str = localStorage.getItem('options');
-    try {
-      return JSON.parse(str) || {};
-    }
-    catch (e) {
-      return {};
-    }
-  }
-
-  function saveConfig(options) {
-    localStorage.setItem('options', JSON.stringify(options));
-  }
-
-  function watchInputField(selector, fun) {
-    $(selector).bind('input propertychange', fun);
-  }
-
-  function showDoc() {
-    let str = $('#curlStr').val();
-    let space = parseInt($('#space').val()) || 0;
-    let showCurl = !!$('#showCurl').prop('checked');
-    let header = !!$('#showHeader').prop('checked');
-    let headerAuthorization = !!$('#showHeaderAuthorization').prop('checked');
-    let options = { space, curl: showCurl, header, headerAuthorization };
-    console.info('options: ', options);
-    saveConfig(options);
-
-    let doc = curl2doc(str, options);
-
-    $('#doc').val(doc);
-    showHtml();
-  }
-
-  function showHtml() {
-    $('#html').html(
-      makeHtml($('#doc').val())
-    );
-  }
-
-  watchInputField('#curlStr', showDoc);
-  watchInputField('#space', showDoc);
-  watchInputField('#showCurl', showDoc);
-  watchInputField('#doc', showHtml);
-
-  $('input[type=checkbox]').bind('change', function () {
-    showDoc();
-  });
-
-  loadBtnCopy('.copy-btn');
-
-  loadOptions();
-  showDoc();
-</script>
 </body>
 </html>

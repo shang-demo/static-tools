@@ -51,5 +51,7 @@ module.exports = {
     indexShow: false,
   }, {
     name: 'curl2doc',
+    build: false,
+    copy: ['dist/'],
   }]
 };
