@@ -49,5 +49,7 @@ module.exports = {
   }, {
     name: 'echo-search',
     indexShow: false,
+  }, {
+    name: 'curl2doc',
   }]
 };
