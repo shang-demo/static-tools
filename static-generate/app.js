@@ -1,7 +1,8 @@
-var P = require('bluebird')
-var fs = P.promisifyAll(require('fs'))
+var Promise = require('bluebird');
+var fs = Promise.promisifyAll(require('fs'));
 var path = require('path');
 var spawn = require('child_process').spawn;
+var exec = require('child_process').exec;
 
 var config = require('./config.js');
 
@@ -20,9 +21,9 @@ if (targetProjects.length) {
   console.info('config.projects: ', config.projects);
 }
 
-  console.info('config.projects: ', config.projects);
+console.info('config.projects: ', config.projects);
 
-P
+Promise
   .map(config.projects, function (project, index) {
     console.log('index: ', index);
     console.log(project.name);
@@ -34,7 +35,7 @@ P
       return copy(project).reflect();
     }
 
-    return P
+    return Promise
       .resolve()
       .then(function () {
         targetPath = path.resolve(__dirname, '../' + project.name);
@@ -42,7 +43,7 @@ P
       })
       .then(function (data) {
         if (project.copy && project.copy.length) {
-          return P.map(project.copy, function (item) {
+          return Promise.map(project.copy, function (item) {
             return copy(project, item);
           });
         }
@@ -56,7 +57,7 @@ P
     }
     else {
       console.error('error projects: ', config.projects[i]);
-      console.error('error reason:', inspection.reason())
+      console.error('error reason:', inspection.reason());
     }
   })
   .then(function () {
@@ -85,6 +86,7 @@ function pathResolve(project, src, prefixPath) {
 
   return resolvedPath;
 }
+
 function copy(project, src, dest) {
   var srcPath;
   var destPath;
@@ -104,7 +106,7 @@ function copy(project, src, dest) {
     destPath = pathResolve(project, dest, '../deploy');
   }
 
-  console.info('copy -r ' + srcPath + ' ' + destPath);
+  console.info('cp -r ' + srcPath + ' ' + destPath);
   return fs.statAsync(srcPath)
     .then(function () {
       return execCmd('cp', ['-r', srcPath, destPath]);
@@ -121,44 +123,62 @@ function build(targetPath, index) {
       targetStaticPath = path.resolve(__dirname, '../deploy/' + targetPublicPath.replace(/.*[\\\/]/, ''));
     })
     .then(function () {
-      return execCmd('rm', ['-rf', 'public' + index])
+      return execCmd('rm', ['-rf', 'public' + index]);
     })
     .then(function () {
-      return execCmd('rm', ['-rf', 'static' + index])
+      return execCmd('rm', ['-rf', 'static' + index]);
     })
     .then(function () {
-      return execCmd('cp', ['-r', targetPublicPath, path.resolve(__dirname, 'public' + index)])
+      return execCmd('mkdir', [path.resolve(__dirname, 'public' + index)]);
+    })
+    .then(function () {
+      return execP(`ls -A ${targetPublicPath} | grep -Ev ".git|.idea|node_modules" | xargs -I {} cp -r ${targetPublicPath}/{} ${path.resolve(__dirname, 'public' + index)}`);
     })
     .then(function () {
       return fs.statAsync(path.resolve(__dirname, 'public' + index + '/.git'))
         .then(function () {
-          return execCmd('rm', ['-rf', 'public' + index + '/.git'])
+          return execCmd('rm', ['-rf', 'public' + index + '/.git']);
         })
         .catch(function () {
 
         });
     })
     .then(function () {
+      console.info('run gulp static');
       return execCmd('gulp', ['static', '-f', 'public' + index, '-t', 'static' + index], {
         platform: true
-      })
+      });
     })
     .then(function () {
       return execCmd('rm', ['-rf', targetStaticPath]);
     })
     .then(function () {
-      return execCmd('mv', ['static' + index, targetStaticPath])
+      return execCmd('mv', ['static' + index, targetStaticPath]);
     })
     .then(function () {
       return execCmd('rm', ['-rf', 'public' + index]);
     });
 }
 
+function execP(command, options) {
+  return new Promise(function (resolve, reject) {
+    console.info('command: ', command);
+    exec(command, options, function (err) {
+      if (err) {
+        return reject(err);
+      }
+
+      resolve();
+    });
+  });
+}
+
 function execCmd(cmd, arg, options) {
-  return new P(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     if (options && options.platform === true) {
       cmd = (process.platform === 'win32' ? (cmd + '.cmd') : cmd);
     }
+    console.info(`${cmd} ${(arg || []).join(' ')}`);
     spawn(cmd, arg, {
       stdio: 'inherit'
     })
@@ -194,5 +214,5 @@ function indexHtml() {
     })
     .then(function () {
       console.log('index.html success');
-    })
+    });
 }
