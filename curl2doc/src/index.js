@@ -1,8 +1,7 @@
-require('./index.css');
+import './index.css';
 
-const curl2doc = require('./curl2doc');
-const makeHtml = require('./make-html');
-
+import curl2doc from './curl2doc';
+import makeHtml from './make-html';
 
 function loadOptions() {
   let options = getConfig();
@@ -15,7 +14,7 @@ function loadOptions() {
 function loadBtnCopy(selector) {
   let clipboard = new Clipboard(selector);
 
-  clipboard.on('success', function (e) {
+  clipboard.on('success', (e) => {
     console.info('Action:', e.action);
     console.info('Text:', e.text);
     console.info('Trigger:', e.trigger);
@@ -23,7 +22,7 @@ function loadBtnCopy(selector) {
     e.clearSelection();
   });
 
-  clipboard.on('error', function (e) {
+  clipboard.on('error', (e) => {
     console.error('Action:', e.action);
     console.error('Trigger:', e.trigger);
   });
@@ -49,11 +48,13 @@ function watchInputField(selector, fun) {
 
 function showDoc() {
   let str = $('#curlStr').val();
-  let space = parseInt($('#space').val()) || 0;
+  let space = parseInt($('#space').val(), 10) || 0;
   let showCurl = !!$('#showCurl').prop('checked');
   let header = !!$('#showHeader').prop('checked');
   let headerAuthorization = !!$('#showHeaderAuthorization').prop('checked');
-  let options = { space, curl: showCurl, header, headerAuthorization };
+  let options = {
+    space, curl: showCurl, header, headerAuthorization,
+  };
   console.info('options: ', options);
   saveConfig(options);
 
@@ -64,9 +65,7 @@ function showDoc() {
 }
 
 function showHtml() {
-  $('#html').html(
-    makeHtml($('#doc').val())
-  );
+  $('#html').html(makeHtml($('#doc').val()));
 }
 
 watchInputField('#curlStr', showDoc);
@@ -74,7 +73,7 @@ watchInputField('#space', showDoc);
 watchInputField('#showCurl', showDoc);
 watchInputField('#doc', showHtml);
 
-$('input[type=checkbox]').bind('change', function () {
+$('input[type=checkbox]').bind('change', () => {
   showDoc();
 });
 

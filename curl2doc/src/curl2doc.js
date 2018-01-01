@@ -1,6 +1,6 @@
-const parseCurl = require('parse-curl');
-const JSON5 = require('json5');
-const url = require('url');
+import parseCurl from 'parse-curl';
+import JSON5 from 'json5';
+import { parse as urlParse } from 'url';
 
 function toString(value, { space = 2 } = {}) {
   if (!value) {
@@ -11,7 +11,7 @@ function toString(value, { space = 2 } = {}) {
     value = JSON.parse(value);
   }
   catch (e) {
-
+    //  do nothing
   }
 
   let type = ({}).toString.call(value);
@@ -26,7 +26,9 @@ function toString(value, { space = 2 } = {}) {
   return JSON.stringify(value, null, space).replace(/[\r\n]/g, '<br>').replace(/\s/g, '&nbsp;');
 }
 
-function buildDoc(obj, { curl, space, header, headerAuthorization } = {}) {
+function buildDoc(obj, {
+  curl, space, header, headerAuthorization,
+} = {}) {
   console.info('obj: ', obj);
   let str = '';
   str += `### URL  
@@ -63,13 +65,15 @@ function buildDoc(obj, { curl, space, header, headerAuthorization } = {}) {
   }
 
   if (curl) {
-    str += '### curl  \n\n```bash\n' + obj.curl + '\n```\n';
+    str += `### curl  \n\n\`\`\`bash\n${obj.curl}\n\`\`\`\n`;
   }
 
   return str;
 }
 
-function curl2doc(str = '', { doc = true, curl = true, space = 2, header = false, headerAuthorization = false } = {}) {
+function curl2doc(str = '', {
+  doc = true, curl = true, space = 2, header = false, headerAuthorization = false,
+} = {}) {
   str = str.trim();
   let parseResult = parseCurl(str);
 
@@ -83,9 +87,10 @@ function curl2doc(str = '', { doc = true, curl = true, space = 2, header = false
     }
   }
   catch (e) {
+    console.warn(e);
   }
 
-  let qs = url.parse(parseResult.url, true);
+  let qs = urlParse(parseResult.url, true);
 
   parseResult.query = qs.query;
   parseResult.pathname = qs.pathname;
@@ -95,8 +100,9 @@ function curl2doc(str = '', { doc = true, curl = true, space = 2, header = false
     return parseResult;
   }
 
-  return buildDoc(parseResult, { curl, space, header, headerAuthorization });
+  return buildDoc(parseResult, {
+    curl, space, header, headerAuthorization,
+  });
 }
 
-
-module.exports = curl2doc;
+export default curl2doc;

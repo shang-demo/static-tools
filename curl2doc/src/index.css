@@ -1,5 +1,8 @@
+body {
+  /* 等宽字体 */
+  font-family: Menlo, Consolas, "Source Code Pro", Inconsolata, Monaco, "Courier New";
+}
+
 pre {
-  padding: 0;
-  background-color: inherit;
   border: none;
 }
