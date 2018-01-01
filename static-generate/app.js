@@ -5,7 +5,7 @@ var spawn = require('child_process').spawn;
 var exec = require('child_process').exec;
 
 var config = require('./config.js');
-
+var projects = config.projects.slice(0);
 
 var targetProjects = process.argv.slice(2);
 
@@ -30,15 +30,33 @@ Promise
     if (project.url) {
       return null;
     }
-    var targetPath = '';
-    if (project.copy === true) {
-      return copy(project).reflect();
-    }
+
+    var targetPath = path.resolve(__dirname, '../' + project.name);
 
     return Promise
       .resolve()
+      .then(() => {
+        var targetStaticPath = path.resolve(__dirname, '../deploy/' + targetPath.replace(/.*[\\\/]/, ''));
+
+        return execP(`rm -rf ${targetStaticPath}`);
+      })
       .then(function () {
-        targetPath = path.resolve(__dirname, '../' + project.name);
+        if (project.cmd && project.cmd.pre) {
+          return Promise.mapSeries(project.cmd.pre, (cmd) => {
+            return execP(`cd ${targetPath} && ${cmd}`)
+              .then((data) => {
+                if (data) {
+                  console.info(data);
+                }
+              });
+          });
+        }
+      })
+      .then(function () {
+        if (project.copy === true) {
+          return copy(project).reflect();
+        }
+
         if (project.build === false) {
           return null;
         }
@@ -51,6 +69,13 @@ Promise
           });
         }
         return data;
+      })
+      .then(function () {
+        if (project.cmd && project.cmd.after) {
+          return Promise.mapSeries(project.cmd.after, (cmd) => {
+            return execP(cmd);
+          });
+        }
       })
       .reflect();
   })
@@ -166,12 +191,12 @@ function build(targetPath, index) {
 function execP(command, options) {
   return new Promise(function (resolve, reject) {
     console.info('command: ', command);
-    exec(command, options, function (err) {
+    exec(command, options, function (err, data) {
       if (err) {
         return reject(err);
       }
 
-      resolve();
+      resolve(data);
     });
   });
 }
@@ -198,7 +223,7 @@ function execCmd(cmd, arg, options) {
 }
 
 function indexHtml() {
-  var arr = config.projects
+  var arr = projects
     .filter(function (project) {
       return project.indexShow !== false;
     })
