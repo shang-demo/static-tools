@@ -42,6 +42,11 @@ module.exports = {
     name: 'browser-detect'
   }, {
     name: 'cloudnapps',
+    cmd: {
+      pre: ['make build'],
+    },
+    build: false,
+    copy: ['dist/'],
     indexShow: false,
   }, {
     name: 'local-warning',
