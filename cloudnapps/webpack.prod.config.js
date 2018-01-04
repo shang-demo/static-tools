@@ -7,6 +7,8 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HappyPack = require('happypack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackCdnPlugin = require('webpack-cdn-plugin');
+const ProvidePlugin = require('webpack/lib/ProvidePlugin');
+const webpackConstant = require('./constant');
 
 const localPreview = process.env.NODE_ENV === 'local';
 
@@ -17,7 +19,7 @@ const config = {
   output: {
     filename: '[name]_[chunkhash:8].js', // 给输出的文件名称加上 Hash 值
     path: path.resolve(__dirname, 'dist'),
-    publicPath: localPreview ? '' : '/cloudnapps',
+    publicPath: localPreview ? webpackConstant.publicPath.dev : webpackConstant.publicPath.prod,
     libraryTarget: 'window',
     // library: 'none'
   },
@@ -25,7 +27,7 @@ const config = {
     // 针对 Npm 中的第三方模块优先采用 jsnext:main 中指向的 ES6 模块化语法的文件
     mainFields: ['jsnext:main', 'browser', 'main'],
   },
-  devtool: 'hidden-source-map',
+  devtool: localPreview ? 'cheap-module-eval-source-map' : 'cheap-module-source-map',
   module: {
     rules: [
       {
@@ -41,7 +43,6 @@ const config = {
         include: path.resolve(__dirname, 'src'),
       },
       {
-        // 增加对 CSS 文件的支持
         test: /\.css$/,
         // 提取出 Chunk 中的 CSS 代码到单独的文件中
         use: ExtractTextPlugin.extract({
@@ -51,6 +52,13 @@ const config = {
     ],
   },
   plugins: [
+    new ProvidePlugin(webpackConstant.provider),
+    new DefinePlugin({
+      // 定义 NODE_ENV 环境变量为 production 去除 react 代码中的开发时才需要的部分
+      'process.env': {
+        NODE_ENV: JSON.stringify('production'),
+      },
+    }),
     // 开启ScopeHoisting
     new ModuleConcatenationPlugin(),
     new HappyPack({
@@ -67,72 +75,33 @@ const config = {
     new ExtractTextPlugin({
       filename: '[name]_[contenthash:8].css', // 给输出的 CSS 文件名称加上 hash 值
     }),
-    new DefinePlugin({
-      // 定义 NODE_ENV 环境变量为 production 去除 react 代码中的开发时才需要的部分
-      'process.env': {
-        NODE_ENV: JSON.stringify('production'),
-      },
-    }),
     new HtmlWebpackPlugin({
       template: 'src/index.html',
+      title: webpackConstant.title.prod,
     }),
-    new WebpackCdnPlugin({
-      modules: [
-        {
-          name: 'jquery',
-          var: '$',
-          path: 'jquery.min.js',
+    new ParallelUglifyPlugin({
+      sourceMap: true,
+      // 传递给 UglifyJS 的参数
+      uglifyJS: {
+        output: {
+          // 最紧凑的输出
+          beautify: false,
+          // 删除所有的注释
+          comments: false,
         },
-        {
-          name: 'bootstrap',
-          style: 'css/bootstrap.min.css',
-          cssOnly: true,
-          path: 'js/bootstrap.min.js',
+        compress: {
+          // 在UglifyJs删除没有用到的代码时不输出警告
+          warnings: false,
+          drop_console: false,
+          // 内嵌定义了但是只用到一次的变量
+          collapse_vars: true,
+          // 提取出出现多次但是没有定义成变量去引用的静态值
+          reduce_vars: true,
         },
-        {
-          name: 'clipboard',
-          var: 'Clipboard',
-          path: 'clipboard.min.js',
-          cdn: 'clipboard.js',
-        },
-        {
-          name: 'blueimp-md5',
-          var: 'md5',
-          path: 'js/md5.min.js',
-        },
-        // json5 is beta version, no cdn
-        // {
-        //   name: 'json5',
-        // }
-      ],
-      prod: true,
-      prodUrl: '//cdn.bootcss.com/:name/:version/:path',
+      },
     }),
+    new WebpackCdnPlugin(webpackConstant.cdn.prod),
   ],
 };
-
-if (!localPreview) {
-  config.plugins.push(new ParallelUglifyPlugin({
-    sourceMap: true,
-    // 传递给 UglifyJS 的参数
-    uglifyJS: {
-      output: {
-        // 最紧凑的输出
-        beautify: false,
-        // 删除所有的注释
-        comments: false,
-      },
-      compress: {
-        // 在UglifyJs删除没有用到的代码时不输出警告
-        warnings: false,
-        drop_console: false,
-        // 内嵌定义了但是只用到一次的变量
-        collapse_vars: true,
-        // 提取出出现多次但是没有定义成变量去引用的静态值
-        reduce_vars: true,
-      },
-    },
-  }));
-}
 
 module.exports = config;
