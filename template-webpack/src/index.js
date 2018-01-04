@@ -1,9 +1,11 @@
-import 'jquery';
+/** cdn import */
+import $ from 'jquery';
 import 'bootstrap';
-import './index.css';
+import Clipboard from 'clipboard';
 
-setTimeout(() => {
-  $('#test').html('????');
-}, 3000);
+/** cdn import end */
 
-console.info('index');
+
+$(() => {
+  console.info('Clipboard: ', Clipboard);
+});

@@ -2,6 +2,8 @@ const path = require('path');
 const HappyPack = require('happypack');
 const WebpackCdnPlugin = require('webpack-cdn-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ProvidePlugin = require('webpack/lib/ProvidePlugin');
+const webpackConstant = require('./constant');
 
 module.exports = {
   entry: {
@@ -28,6 +30,7 @@ module.exports = {
     ],
   },
   plugins: [
+    new ProvidePlugin(webpackConstant.provider),
     new HappyPack({
       id: 'babel',
       loaders: ['babel-loader?cacheDirectory'],
@@ -37,22 +40,10 @@ module.exports = {
       loaders: ['style-loader', 'css-loader'],
     }),
     new HtmlWebpackPlugin({
-      template: 'src/template.html',
+      template: 'src/index.html',
+      title: webpackConstant.title.dev,
     }),
-    new WebpackCdnPlugin({
-      modules: [
-        {
-          name: 'jquery',
-        },
-        {
-          name: 'bootstrap',
-          style: 'dist/css/bootstrap.min.css',
-          path: 'dist/js/bootstrap.min.js',
-        }
-      ],
-      prod: false,
-      publicPath: '/node_modules', // override when prod is false
-    }),
+    new WebpackCdnPlugin(webpackConstant.cdn.dev),
   ],
   watchOptions: {
     // 不监听的文件或文件夹，支持正则匹配

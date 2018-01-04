@@ -2,7 +2,8 @@ module.exports = {
   extends: 'airbnb-base',
   plugins: [],
   globals: {
-    $: false,
+    document: false,
+    window: false,
     localStorage: false,
     Promise: false,
   },

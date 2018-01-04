@@ -7,14 +7,19 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HappyPack = require('happypack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackCdnPlugin = require('webpack-cdn-plugin');
+const ProvidePlugin = require('webpack/lib/ProvidePlugin');
+const webpackConstant = require('./constant');
 
-module.exports = {
+const localPreview = process.env.NODE_ENV === 'local';
+
+const config = {
   entry: {
     index: './src/index.js',
   },
   output: {
     filename: '[name]_[chunkhash:8].js', // 给输出的文件名称加上 Hash 值
     path: path.resolve(__dirname, 'dist'),
+    publicPath: localPreview ? webpackConstant.publicPath.dev : webpackConstant.publicPath.prod,
     libraryTarget: 'window',
     // library: 'none'
   },
@@ -22,7 +27,7 @@ module.exports = {
     // 针对 Npm 中的第三方模块优先采用 jsnext:main 中指向的 ES6 模块化语法的文件
     mainFields: ['jsnext:main', 'browser', 'main'],
   },
-  devtool: 'hidden-source-map',
+  devtool: localPreview ? 'cheap-module-eval-source-map' : 'cheap-module-source-map',
   module: {
     rules: [
       {
@@ -38,7 +43,6 @@ module.exports = {
         include: path.resolve(__dirname, 'src'),
       },
       {
-        // 增加对 CSS 文件的支持
         test: /\.css$/,
         // 提取出 Chunk 中的 CSS 代码到单独的文件中
         use: ExtractTextPlugin.extract({
@@ -48,6 +52,13 @@ module.exports = {
     ],
   },
   plugins: [
+    new ProvidePlugin(webpackConstant.provider),
+    new DefinePlugin({
+      // 定义 NODE_ENV 环境变量为 production 去除 react 代码中的开发时才需要的部分
+      'process.env': {
+        NODE_ENV: JSON.stringify('production'),
+      },
+    }),
     // 开启ScopeHoisting
     new ModuleConcatenationPlugin(),
     new HappyPack({
@@ -58,18 +69,15 @@ module.exports = {
     }),
     new HappyPack({
       id: 'css',
-      // 如何处理 .css 文件，用法和 Loader 配置中一样
       // 通过 minimize 选项压缩 CSS 代码
       loaders: ['css-loader?minimize'],
     }),
     new ExtractTextPlugin({
       filename: '[name]_[contenthash:8].css', // 给输出的 CSS 文件名称加上 hash 值
     }),
-    new DefinePlugin({
-      // 定义 NODE_ENV 环境变量为 production 去除 react 代码中的开发时才需要的部分
-      'process.env': {
-        NODE_ENV: JSON.stringify('production'),
-      },
+    new HtmlWebpackPlugin({
+      template: 'src/index.html',
+      title: webpackConstant.title.prod,
     }),
     new ParallelUglifyPlugin({
       sourceMap: true,
@@ -92,23 +100,8 @@ module.exports = {
         },
       },
     }),
-    new HtmlWebpackPlugin({
-      template: 'src/template.html',
-    }),
-    new WebpackCdnPlugin({
-      modules: [
-        {
-          name: 'jquery',
-          path: 'jquery.min.js',
-        },
-        {
-          name: 'bootstrap',
-          style: 'css/bootstrap.min.css',
-          path: 'js/bootstrap.min.js',
-        }
-      ],
-      prod: true,
-      prodUrl: '//cdn.bootcss.com/:name/:version/:path',
-    }),
+    new WebpackCdnPlugin(webpackConstant.cdn.prod),
   ],
 };
+
+module.exports = config;

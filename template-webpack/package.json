@@ -1,8 +1,8 @@
 {
-  "name": "curl2doc",
+  "name": "template",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "start:dev": "webpack-dev-server --config webpack.config.js",
     "build": "rm -rf dist && webpack --config webpack.prod.config.js",
@@ -12,12 +12,8 @@
   "license": "MIT",
   "dependencies": {
     "bootstrap": "^3.3.7",
-    "cron-parser": "^2.3.0",
-    "jquery": "^3.2.1",
-    "json5": "^0.5.1",
-    "parse-curl": "^0.2.6",
-    "showdown": "^1.8.5",
-    "webpack": "^3.10.0"
+    "clipboard": "^1.7.1",
+    "jquery": "^3.2.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
