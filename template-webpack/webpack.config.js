@@ -13,6 +13,7 @@ module.exports = {
     filename: '[name]_[hash:8].js', // 给输出的文件名称加上 Hash 值
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'window',
+    publicPath: '/',
     // library: 'none'
   },
   devtool: 'cheap-module-eval-source-map',
