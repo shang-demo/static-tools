@@ -1,0 +1,36 @@
+{
+  "name": "diff-merge",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start:dev": "webpack-dev-server --config config/webpack.config.js",
+    "build": "rm -rf dist && webpack --config config/webpack.prod.config.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "xinshangshangxin",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "^4.0.0",
+    "clipboard": "^2.0.0",
+    "codemirror": "^5.38.0",
+    "diff-match-patch": "^1.0.1",
+    "jquery": "^3.3.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-loader": "^2.0.0",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "happypack": "^5.0.0-beta.1",
+    "html-webpack-plugin": "^3.1.0",
+    "mini-css-extract-plugin": "^0.2.0",
+    "webpack": "^4.2.0",
+    "webpack-cdn-plugin": "^2.0.1",
+    "webpack-cli": "^2.0.13",
+    "webpack-dev-server": "^3.1.1"
+  }
+}

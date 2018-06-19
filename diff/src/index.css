@@ -1,0 +1,20 @@
+body {
+    /* 等宽字体 */
+    font-family: Menlo, Consolas, 'Source Code Pro', Inconsolata, Monaco, 'Courier New', serif;
+}
+
+.CodeMirror {
+  font-size: 16px;
+}
+
+.CodeMirror-merge, .CodeMirror-merge .CodeMirror, .CodeMirror-merge-2pane .CodeMirror-merge-pane {
+  height: 100%;
+}
+
+.CodeMirror-merge-2pane .CodeMirror-merge-pane {
+    width: 48%;
+}
+
+.CodeMirror-merge-2pane .CodeMirror-merge-gap {
+    width: 4%;
+}

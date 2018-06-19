@@ -1,6 +1,14 @@
 module.exports = {
   projects: [{
-    name: 'diff'
+    name: 'diff',
+    cmd: {
+      pre: ['make build prod'],
+    },
+    build: false,
+    copy: ['dist/'],
+  }, {
+    name: 'diff2',
+    indexShow: false,
   }, {
     name: 'je',
     copy: true
