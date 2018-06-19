@@ -7,7 +7,7 @@ module.exports = {
     index: './src/index.js',
   },
   output: {
-    filename: '[name]_[hash:8].js',// 给输出的文件名称加上 Hash 值
+    filename: '[name]_[hash:8].js', // 给输出的文件名称加上 Hash 值
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'window',
     // library: 'none'
@@ -18,13 +18,19 @@ module.exports = {
       {
         test: /\.js$/,
         include: path.resolve(__dirname, 'src'),
+        loader: 'eslint-loader',
+        enforce: 'pre',
+      },
+      {
+        test: /\.js$/,
+        include: path.resolve(__dirname, 'src'),
         use: ['happypack/loader?id=babel'],
       },
       {
         test: /\.css$/,
         use: ['happypack/loader?id=css'],
       },
-    ]
+    ],
   },
   plugins: [
     new HappyPack({

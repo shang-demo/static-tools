@@ -53,7 +53,10 @@ function showDoc() {
   let header = !!$('#showHeader').prop('checked');
   let headerAuthorization = !!$('#showHeaderAuthorization').prop('checked');
   let options = {
-    space, curl: showCurl, header, headerAuthorization,
+    space,
+    curl: showCurl,
+    header,
+    headerAuthorization,
   };
   console.info('options: ', options);
   saveConfig(options);

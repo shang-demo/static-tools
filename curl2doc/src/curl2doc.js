@@ -14,7 +14,7 @@ function toString(value, { space = 2 } = {}) {
     //  do nothing
   }
 
-  let type = ({}).toString.call(value);
+  let type = {}.toString.call(value);
   type = type.substring(8, type.length - 1);
   if (type === 'String' || type === 'Number' || type === 'Boolean') {
     return value;
@@ -23,13 +23,31 @@ function toString(value, { space = 2 } = {}) {
     return value.valueOf() + value.flags;
   }
 
-  return JSON.stringify(value, null, space).replace(/[\r\n]/g, '<br>').replace(/\s/g, '&nbsp;');
+  return JSON.stringify(value, null, space)
+    .replace(/[\r\n]/g, '<br>')
+    .replace(/\s/g, '&nbsp;');
 }
 
 function buildDoc(obj, {
   curl, space, header, headerAuthorization,
 } = {}) {
-  console.info('obj: ', obj);
+  let descriptionList = {
+    authorization: 'accessToken 从登录接口中获取',
+    fromDate: '开始日期',
+    toDate: '结束日期',
+  };
+
+  let headerIgnoreKey = [
+    'DNT',
+    'Accept-Encoding',
+    'Accept-Language',
+    'User-Agent',
+    'Accept',
+    'Referer',
+    'Cookie',
+    'If-None-Match',
+    'Connection',
+  ];
   let str = '';
   str += `### URL  
 \`${obj.method} ${obj.pathname}\`
@@ -44,7 +62,19 @@ function buildDoc(obj, {
         return;
       }
 
-      str += `${key} | ${toString(obj.header[key], { space })} | \n`;
+      let ignoreIndex = headerIgnoreKey.findIndex((ignoreKey) => {
+        if (ignoreKey === key || ignoreKey.toLocaleLowerCase() === key) {
+          return true;
+        }
+        return false;
+      });
+
+      if (ignoreIndex >= 0) {
+        return;
+      }
+
+      str += `${key} | ${toString(obj.header[key], { space })}  | ${descriptionList[key] ||
+        ''} | \n`;
     });
   }
 
@@ -52,7 +82,7 @@ function buildDoc(obj, {
     str += '### Query String  \n参数名 | 例子 | 描述 |\n---- | ---| ---\n';
 
     Object.keys(obj.query).forEach((key) => {
-      str += `${key} | ${toString(obj.query[key], { space })} | \n`;
+      str += `${key} | ${toString(obj.query[key], { space })} | ${descriptionList[key] || ''} | \n`;
     });
   }
 
@@ -71,11 +101,18 @@ function buildDoc(obj, {
   return str;
 }
 
-function curl2doc(str = '', {
-  doc = true, curl = true, space = 2, header = false, headerAuthorization = false,
-} = {}) {
+function curl2doc(
+  str = '',
+  {
+    doc = true, curl = true, space = 2, header = false, headerAuthorization = false,
+  } = {}
+) {
   str = str.trim();
+  // eslint-disable-next-line no-template-curly-in-string
+  str = str.replace(/Bearer\s[^']*/, 'Bearer ${accessToken}');
+
   let parseResult = parseCurl(str);
+  console.log('parseResult: ', parseResult);
 
   if (parseResult.header && parseResult.header['content-type']) {
     delete parseResult.header['Content-Type'];
@@ -90,18 +127,23 @@ function curl2doc(str = '', {
     console.warn(e);
   }
 
+  console.info('parseResult.url: ', parseResult.url);
   let qs = urlParse(parseResult.url, true);
 
   parseResult.query = qs.query;
   parseResult.pathname = qs.pathname;
-  parseResult.curl = str;
+  // eslint-disable-next-line no-template-curly-in-string
+  parseResult.curl = str.replace(/https?:\/\/(127.0.0.1|localhost)(:\d+)?\//, '${SERVER_URL}/');
 
   if (!doc) {
     return parseResult;
   }
 
   return buildDoc(parseResult, {
-    curl, space, header, headerAuthorization,
+    curl,
+    space,
+    header,
+    headerAuthorization,
   });
 }
 

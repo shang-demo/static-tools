@@ -11,19 +11,9 @@
 <div class="row">
   <div class="col-xs-12">
     <textarea id="curlStr" class="form-control" rows="10">
-      curl --request POST \
-  --url http://devops.demo.wifi.cloudnapps.com/api/v1/job \
-  --header 'authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiI1OTgxN2Y3ZjdmMjUxYjgyNDFlODQ3NjQiLCJleHBpcmVzQXQiOjE1MTM4NDkxMzA1MDV9.llXvk3iwL2-xB6u6EEa8jp6ZuFu34OCu23QWUL7JTn8' \
-  --header 'content-type: application/json' \
-  --data '{
-	"type": "Cube:cn.magicsdk.cube.jobs.StoreDateCustomer",
-	"data": {
-		"properties": {
-			"cn.magicsdk.cube.from_date": "2017-04-01",
-			"cn.magicsdk.cube.to_date": "2017-12-21"
-		}
-	}
-}'
+curl --request GET \
+  --url 'http://127.0.0.1:10000/api/v1/cube-point/key?type=customer&group=user&key=&key=avgShopLength&fromDate=2017-11-15&toDate=2017-11-17&storeId=59bf46f4e888d0c44607288b' \
+  --header 'authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiI1YTBlM2YzMjE2ODlkYmJiNzkwYmRiMWIiLCJleHBpcmVzQXQiOjE1MjEwNDE4NTI5MjR9.Svw0-6BRrY_5d0C6JUa40k2iIh1f4w-ohUfhDo1JFxo'
     </textarea>
   </div>
 </div>
