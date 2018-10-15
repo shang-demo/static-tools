@@ -31,7 +31,14 @@ function loadBtnCopy(selector) {
 function getConfig() {
   let str = localStorage.getItem('options');
   try {
-    return JSON.parse(str) || {};
+    return (
+      JSON.parse(str) || {
+        space: 2,
+        curl: true,
+        header: true,
+        headerAuthorization: true,
+      }
+    );
   }
   catch (e) {
     return {};
@@ -71,6 +78,32 @@ function showHtml() {
   $('#html').html(makeHtml($('#doc').val()));
 }
 
+function loadPerset() {
+  let { href } = window.location;
+  let base64 = href.split('?')[1];
+
+  console.log('base64: ', base64);
+
+  if (!base64) {
+    return null;
+  }
+
+  try {
+    let curl = window.atob(base64);
+    console.log('curl: ', curl);
+
+    $('#curlStr').val(curl);
+  }
+  catch (e) {
+    let curl = decodeURIComponent(base64);
+    console.log('curl: ', JSON.stringify(curl));
+
+    $('#curlStr').val(curl);
+  }
+
+  return null;
+}
+
 watchInputField('#curlStr', showDoc);
 watchInputField('#space', showDoc);
 watchInputField('#showCurl', showDoc);
@@ -83,4 +116,5 @@ $('input[type=checkbox]').bind('change', () => {
 loadBtnCopy('.copy-btn');
 
 loadOptions();
+loadPerset();
 showDoc();

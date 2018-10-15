@@ -6,6 +6,7 @@ module.exports = {
     localStorage: false,
     Clipboard: false,
     Promise: false,
+    window: false,
   },
   rules: {
     'arrow-body-style': ['error', 'always'],
