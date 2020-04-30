@@ -21,7 +21,8 @@ module.exports = {
   }, {
     name: 'regexp-parsing'
   }, {
-    name: 'runhtml'
+    name: 'runhtml',
+    url: 'http://runhtml.xinshangshangxin.com/',
   }, {
     name: 'cron'
   }, {
