@@ -7,7 +7,7 @@ static:
 	gulp static
 	cd static && hs
 deploy:
-	rsync --exclude .DS_Store --exclude .tmp --exclude .idea --exclude .git --exclude node_modules -crzvF -e "ssh -p 22" ../deploy/   root@zh.xinshangshangxin.com:/root/production/static
+	rsync --exclude .DS_Store --exclude .tmp --exclude .idea --exclude .git --exclude node_modules -crzvF -e "ssh -p 22" ../deploy/   ubuntu@zh.xinshangshangxin.com:/home/ubuntu/production/static
 push:
 	git push origin master
 test:

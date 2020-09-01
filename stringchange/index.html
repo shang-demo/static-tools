@@ -182,7 +182,7 @@
     str = str.replace(/\/\*.*\*\//gi, '');
     str = str.replace(/ObjectId\(['"](.+)['"]\)/gi, '\'$1\'');
     str = str.replace(/ISODate\(['"](.+)['"]\)/gi, '\'$1\'');
-    str = str.replace(/NumberInt\((\d+)\)/gi, '\'$1\'');
+    str = str.replace(/NumberInt\((\d+)\)/gi, '$1');
 
     // python
     str = str.replace(/:\s*None,/gi, ':null,');
